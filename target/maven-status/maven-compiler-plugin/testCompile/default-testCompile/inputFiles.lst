@@ -1,0 +1,12 @@
+/Users/lukaszsutula/Projects/advanced-ddd-exchange-java/src/test/java/pl/coztymit/exchange/account/domain/FundsTest.java
+/Users/lukaszsutula/Projects/advanced-ddd-exchange-java/src/test/java/pl/coztymit/exchange/identity/ui/IdentityControllerTest.java
+/Users/lukaszsutula/Projects/advanced-ddd-exchange-java/src/test/java/pl/coztymit/exchange/identity/domain/PESELTest.java
+/Users/lukaszsutula/Projects/advanced-ddd-exchange-java/src/test/java/pl/coztymit/exchange/account/domain/ExchangeRateTest.java
+/Users/lukaszsutula/Projects/advanced-ddd-exchange-java/src/test/java/pl/coztymit/exchange/ExchangeAdvancedDddApplicationTests.java
+/Users/lukaszsutula/Projects/advanced-ddd-exchange-java/src/test/java/pl/coztymit/exchange/account/infrastructure/DBAccountRepositoryTest.java
+/Users/lukaszsutula/Projects/advanced-ddd-exchange-java/src/test/java/pl/coztymit/exchange/identity/application/IdentityApplicationServiceTest.java
+/Users/lukaszsutula/Projects/advanced-ddd-exchange-java/src/test/java/pl/coztymit/exchange/account/domain/AccountTest.java
+/Users/lukaszsutula/Projects/advanced-ddd-exchange-java/src/test/java/pl/coztymit/exchange/identity/domain/IdentityFactoryTest.java
+/Users/lukaszsutula/Projects/advanced-ddd-exchange-java/src/test/java/pl/coztymit/exchange/identity/domain/EmailTest.java
+/Users/lukaszsutula/Projects/advanced-ddd-exchange-java/src/test/java/pl/coztymit/exchange/account/domain/trader/TraderNumberTest.java
+/Users/lukaszsutula/Projects/advanced-ddd-exchange-java/src/test/java/pl/coztymit/exchange/identity/infrastructure/HibernateIdentityRepositoryTest.java
