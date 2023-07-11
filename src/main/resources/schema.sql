@@ -6,11 +6,13 @@ CREATE TABLE identities (
   surname VARCHAR(255) NOT NULL,
   email VARCHAR(255) NOT NULL
 );
+
 CREATE TABLE accounts (
   account_id UUID NOT NULL PRIMARY KEY,
   identity_id UUID NOT NULL,
   trader_number VARCHAR(15) NOT NULL
 );
+
 CREATE TABLE transactions (
   transaction_number UUID NOT NULL PRIMARY KEY,
   account_id UUID NOT NULL,
@@ -20,10 +22,48 @@ CREATE TABLE transactions (
   transaction_date TIMESTAMP NOT NULL,
   CONSTRAINT fk_transaction_account_id FOREIGN KEY (account_id) REFERENCES accounts(account_id)
 );
+
 CREATE TABLE wallets (
   wallet_id UUID NOT NULL PRIMARY KEY,
   account_id UUID NOT NULL,
   fund_value DECIMAL(19, 2) NOT NULL,
   fund_currency VARCHAR(3) NOT NULL,
   CONSTRAINT fk_wallet_account_id FOREIGN KEY (account_id) REFERENCES accounts(account_id)
+);
+
+CREATE TABLE quotes (
+    quote_id UUID NOT NULL PRIMARY KEY,
+    trader_number VARCHAR(15) NOT NULL,
+    expiration_date TIMESTAMP NOT NULL,
+    exchange_rate_currency_to_sell VARCHAR(3) NOT NULL,
+    exchange_rate_currency_to_buy VARCHAR(3) NOT NULL,
+    exchange_rate DECIMAL(15, 2) NOT NULL,
+    to_exchange_value DECIMAL(15, 2) NOT NULL,
+    to_exchange_currency VARCHAR(3) NOT NULL,
+    exchanged_value DECIMAL(15, 2) NOT NULL,
+    exchanged_currency VARCHAR(3) NOT NULL,
+    status VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE currency_pairs (
+    currency_pair_id UUID NOT NULL PRIMARY KEY,
+    base_currency VARCHAR(3) NOT NULL,
+    target_currency VARCHAR(3) NOT NULL,
+    base_rate DECIMAL(15, 2) NOT NULL,
+    adjusted_rate DECIMAL(15, 2),
+    status VARCHAR(50) NOT NULL
+);
+CREATE TABLE negotiations (
+    negotiation_id uuid NOT NULL PRIMARY KEY,
+    trader_number VARCHAR(15) NOT NULL,
+    operator_id uuid,
+    expiration_date TIMESTAMP,
+    target_currency VARCHAR(3) NOT NULL,
+    base_currency VARCHAR(3) NOT NULL,
+    proposed_exchange_amount DECIMAL(15, 2) NOT NULL,
+    proposed_exchange_currency VARCHAR(3) NOT NULL,
+    propose_exchange_rate DECIMAL(15, 2) NOT NULL,
+    base_exchange_rate DECIMAL(15, 2) NOT NULL,
+    difference_in_percentage DECIMAL(15, 2) NOT NULL,
+    status varchar(255)
 );

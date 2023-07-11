@@ -1,5 +1,6 @@
 package pl.coztymit.exchange.kernel;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Embeddable;
 import pl.coztymit.exchange.kernel.exception.IllegalCurrencyException;
 
@@ -7,6 +8,7 @@ import java.util.Objects;
 
 @Embeddable
 public class Currency {
+    @JsonProperty
     private String value;
     public static Currency PLN = new Currency("PLN");
     public static Currency EUR = new Currency("EUR");

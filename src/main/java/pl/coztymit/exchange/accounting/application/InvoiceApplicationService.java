@@ -86,5 +86,4 @@ public class InvoiceApplicationService {
         return new CreateStatus("Corrected", number);
     }
 
-
 }

@@ -1,17 +1,22 @@
 package pl.coztymit.exchange.kernel;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import pl.coztymit.exchange.accounting.domain.exception.DifferentCurrenciesException;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.Objects;
 @Embeddable
 public class Money {
 
     public static Money ZERO_PLN = new Money(BigDecimal.ZERO);
+    @JsonProperty
     private BigDecimal value;
+    @JsonProperty
     private Currency currency;
 
     private Money() {
@@ -87,10 +92,17 @@ public class Money {
     }
 
     public BigDecimal multiply(BigDecimal rate) {
-        return this.value.multiply(rate);
+        return this.value.multiply(rate).setScale(2, RoundingMode.HALF_UP);
+    }
+    public BigDecimal div(BigDecimal rate) {
+        return this.value.divide(rate, 2, RoundingMode.HALF_UP);
     }
 
     public boolean isNegative() {
         return this.value.compareTo(BigDecimal.ZERO) < 0;
+    }
+
+    public boolean isMoreOrEquals(Money money) {
+        return this.value.compareTo(money.value) >= 0;
     }
 }

@@ -1,5 +1,6 @@
 package pl.coztymit.exchange.account.domain.trader;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Embeddable;
 
 import java.time.LocalDate;
@@ -7,10 +8,12 @@ import java.util.Random;
 @Embeddable
 public class TraderNumber {
     //to 3 duże litery myślnik dzień myślnik rok myślnik -3 cyfry AAA-12-2023-456
+    @JsonProperty
     private String value;
 
     TraderNumber() {
     }
+
     public TraderNumber(String number) {
         if (!isValidTraderNumber(number)) {
             throw new RuntimeException("Incorrect trader number");
@@ -38,7 +41,7 @@ public class TraderNumber {
     }
 
     public static boolean isValidTraderNumber(String traderNumber) {
-        if (traderNumber == null) {
+        if (traderNumber == null || traderNumber.length() != 15) {
             return false;
         }
 
