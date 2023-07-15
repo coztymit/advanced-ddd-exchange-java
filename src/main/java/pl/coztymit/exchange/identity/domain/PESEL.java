@@ -4,7 +4,6 @@ public class PESEL {
     private String value;
 
     PESEL() {
-
     }
 
     public PESEL(String value) {
@@ -38,5 +37,10 @@ public class PESEL {
         int checkSum = (10 - (sum % 10)) % 10;
 
         return checkSum == Character.getNumericValue(pesel.charAt(10));
+    }
+
+    @Override
+    public String toString() {
+        return value;
     }
 }

@@ -1,7 +1,5 @@
 package pl.coztymit.exchange.negotiation.domain;
 
-import pl.coztymit.exchange.quoting.domain.QuoteId;
-
 import java.util.UUID;
 
 public class NegotiationId {

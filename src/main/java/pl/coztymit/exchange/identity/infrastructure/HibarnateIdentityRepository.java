@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import pl.coztymit.exchange.identity.domain.Identity;
 import pl.coztymit.exchange.identity.domain.IdentityData;
 import pl.coztymit.exchange.identity.domain.IdentityRepository;
+import pl.coztymit.exchange.identity.domain.PESEL;
 import pl.coztymit.exchange.kernel.IdentityId;
 
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.Optional;
 
 @Repository
 public class HibarnateIdentityRepository implements IdentityRepository {
+
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -33,5 +35,12 @@ public class HibarnateIdentityRepository implements IdentityRepository {
         TypedQuery<IdentityData> query = entityManager.createQuery("SELECT new pl.coztymit.exchange.identity.domain.IdentityData(i.identityId, i.firstName.value, i.surname.value, i.pesel.value, i.email.value) FROM Identity i WHERE i.identityId = :identityId", IdentityData.class);
         query.setParameter("identityId", identityId);
         return query.getResultStream().findFirst();
+    }
+
+    @Override
+    public boolean existsByPesel(PESEL pesel) {
+        TypedQuery<IdentityId> query = entityManager.createQuery("SELECT i.identityId FROM Identity i WHERE i.pesel = :pesel", IdentityId.class);
+        query.setParameter("pesel", pesel);
+        return !query.getResultList().isEmpty();
     }
 }

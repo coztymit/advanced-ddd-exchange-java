@@ -2,23 +2,20 @@ package pl.coztymit.exchange.account.infrastructure;
 
 
 import org.springframework.stereotype.Repository;
-import pl.coztymit.exchange.account.domain.Account;
-import pl.coztymit.exchange.account.domain.AccountId;
-import pl.coztymit.exchange.account.domain.AccountRepository;
-import pl.coztymit.exchange.account.domain.trader.TraderNumber;
+import pl.coztymit.exchange.account.domain.*;
 import pl.coztymit.exchange.kernel.IdentityId;
 
+import java.util.List;
 import java.util.Optional;
 @Repository
 public class ElasticAccountRepository implements AccountRepository {
     @Override
-    public Optional<Account> find(AccountId accountId) {
+    public Optional<Account> find(AccountNumber accountNumber) {
         return Optional.empty();
     }
 
     @Override
     public void save(Account account) {
-
     }
 
     @Override
@@ -29,5 +26,10 @@ public class ElasticAccountRepository implements AccountRepository {
     @Override
     public Optional<Account> findAccountFor(TraderNumber traderNumber) {
         return Optional.empty();
+    }
+
+    @Override
+    public List<WalletData> findAllByTraderNumber(TraderNumber traderNumber) {
+        return null;
     }
 }

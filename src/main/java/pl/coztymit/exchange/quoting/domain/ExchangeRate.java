@@ -2,28 +2,17 @@ package pl.coztymit.exchange.quoting.domain;
 
 import jakarta.persistence.Embeddable;
 import pl.coztymit.exchange.kernel.Currency;
-import pl.coztymit.exchange.kernel.Money;
-
-import java.math.BigDecimal;
 
 @Embeddable
 public class ExchangeRate {
     private Currency currencyToSell;
     private Currency currencyToBuy;
-    private BigDecimal rate;
+    private Rate rate;
 
-    //to sell PLN
-    // TO buy EUR
-    // 1 PLN = 0.22 EUR
-
-    //to sell EUR
-    //to buy PLN
-    // 1 EUR = 4.55 PLN
     private ExchangeRate(){
-
     }
 
-    public ExchangeRate(Currency currencyToSell, Currency currencyToBuy, BigDecimal rate) {
+    public ExchangeRate(Currency currencyToSell, Currency currencyToBuy, Rate rate) {
         if(currencyToSell.equals(currencyToBuy)){
             throw new RuntimeException("Currencies are the same");
         }
@@ -50,11 +39,28 @@ public class ExchangeRate {
         );
     }
 
-    public Money exchange(Money moneyToExchange) {
+    public MoneyExchanged exchange(MoneyToExchange moneyToExchange) {
         if (moneyToExchange.theSameCurrency(currencyToSell)) {
-
-            return new Money(moneyToExchange.multiply(rate), currencyToBuy);
+            return moneyToExchange.multiplyWithChangeCurrency(rate, currencyToBuy);
         }
-        return new Money(moneyToExchange.div(rate), currencyToSell);
+        return moneyToExchange.divWithChangeCurrency(rate, currencyToSell);
+    }
+
+    public Currency getCurrencyToSell() {
+        return currencyToSell;
+    }
+
+    public Currency getCurrencyToBuy() {
+        return currencyToBuy;
+    }
+
+    public Rate getRate() {
+        return rate;
+    }
+
+    public boolean equalsRate(Rate rate) {
+        if (this.rate == rate) return true;
+        if (rate == null) return false;
+        return this.rate.equals(rate);
     }
 }

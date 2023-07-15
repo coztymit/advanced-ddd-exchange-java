@@ -5,14 +5,12 @@ import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import org.springframework.stereotype.Repository;
-import pl.coztymit.exchange.account.domain.Account;
-import pl.coztymit.exchange.account.domain.AccountId;
-import pl.coztymit.exchange.account.domain.AccountRepository;
-import pl.coztymit.exchange.account.domain.trader.TraderNumber;
+import pl.coztymit.exchange.account.domain.*;
 import pl.coztymit.exchange.kernel.IdentityId;
 
 import java.util.List;
 import java.util.Optional;
+
 @Repository
 public class DBAccountRepository implements AccountRepository {
 
@@ -20,8 +18,8 @@ public class DBAccountRepository implements AccountRepository {
     private EntityManager entityManager;
 
     @Override
-    public Optional<Account> find(AccountId accountId) {
-        Account account = entityManager.find(Account.class, accountId);
+    public Optional<Account> find(AccountNumber accountNumber) {
+        Account account = entityManager.find(Account.class, accountNumber);
         return Optional.ofNullable(account);
     }
 
@@ -51,4 +49,14 @@ public class DBAccountRepository implements AccountRepository {
             return Optional.empty();
         }
     }
+
+    @Override
+    public List<WalletData> findAllByTraderNumber(TraderNumber traderNumber) {
+        String queryString = "SELECT new pl.coztymit.exchange.account.domain.WalletData(w.walletId.value, w.funds.value.value, w.funds.value.currency.value) FROM Account a JOIN a.wallets w WHERE a.trader.number = :number";
+        TypedQuery<WalletData> query = entityManager.createQuery(queryString, WalletData.class);
+        query.setParameter("number", traderNumber);
+        return query.getResultList();
+    }
+
+
 }

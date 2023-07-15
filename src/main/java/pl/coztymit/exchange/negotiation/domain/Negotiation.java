@@ -1,12 +1,10 @@
 package pl.coztymit.exchange.negotiation.domain;
 
 import jakarta.persistence.*;
-import pl.coztymit.exchange.account.domain.trader.TraderNumber;
 import pl.coztymit.exchange.kernel.Currency;
 import pl.coztymit.exchange.kernel.Money;
 import pl.coztymit.exchange.negotiation.domain.policy.NegotiationAutomaticApprovePolicy;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
@@ -18,8 +16,8 @@ public class Negotiation {
     @EmbeddedId
     private NegotiationId negotiationId;
 
-    @AttributeOverride(name = "value", column = @Column(name = "trader_number"))
-    private TraderNumber traderNumber;
+    @AttributeOverride(name = "identityId.uuid", column = @Column(name = "negotiator_identity_id"))
+    private Negotiator negotiator;
 
     @AttributeOverride(name = "operatorId.uuid", column = @Column(name = "operator_id"))
     private Operator operator;
@@ -34,6 +32,7 @@ public class Negotiation {
             @AttributeOverride(name = "value", column = @Column(name = "proposed_exchange_amount")),
             @AttributeOverride(name = "currency.value", column = @Column(name = "proposed_exchange_currency"))
     })
+    //TODO nieujemna
     private Money proposedExchangeAmount;
 
     @AttributeOverrides({
@@ -52,9 +51,9 @@ public class Negotiation {
     private Negotiation() {
     }
 
-    public Negotiation(TraderNumber traderNumber, Money proposedExchangeAmount, Currency baseCurrency, Currency targetCurrency, NegotiationRate  negotiationRate) {
+    public Negotiation(Negotiator negotiator, Money proposedExchangeAmount, Currency baseCurrency, Currency targetCurrency, NegotiationRate  negotiationRate) {
         this.negotiationId = NegotiationId.generate();
-        this.traderNumber = traderNumber;
+        this.negotiator = negotiator;
         this.proposedExchangeAmount = proposedExchangeAmount;
         this.status = Status.PENDING;
         this.baseCurrency = baseCurrency;

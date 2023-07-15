@@ -48,4 +48,8 @@ public class CurrencyPair {
     public void deactivate(){
         this.status = Status.INACTIVE;
     }
+
+    public CurrencyPairId currencyPairId() {
+        return currencyPairId;
+    }
 }

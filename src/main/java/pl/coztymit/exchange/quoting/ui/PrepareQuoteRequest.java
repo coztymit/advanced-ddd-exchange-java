@@ -1,8 +1,9 @@
 package pl.coztymit.exchange.quoting.ui;
 
-import pl.coztymit.exchange.account.domain.trader.TraderNumber;
-import pl.coztymit.exchange.kernel.Money;
+import pl.coztymit.exchange.kernel.IdentityId;
 
-public record PrepareQuoteRequest (TraderNumber traderNumber, Money moneyToExchange, String currencyToBuy, String currencyToSell) {
+import java.math.BigDecimal;
+
+public record PrepareQuoteRequest(IdentityId identityId, BigDecimal moneyToExchangeValue, String moneyToExchangeCurrency, String currencyToBuy, String currencyToSell) {
 
 }

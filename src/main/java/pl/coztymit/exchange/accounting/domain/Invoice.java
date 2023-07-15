@@ -21,6 +21,8 @@ public class Invoice {
     private Seller seller;
     private Buyer buyer;
 
+    private List<Correction> corrections = new ArrayList<>();
+
     //TO można zmienić na politykę
     private static Money lineValueLimit = new Money(new BigDecimal("10000"));
     //TO należy zamienić na politykę

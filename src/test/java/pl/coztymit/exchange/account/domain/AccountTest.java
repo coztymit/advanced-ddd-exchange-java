@@ -7,7 +7,6 @@ import pl.coztymit.exchange.account.domain.exception.InsufficientFundsException;
 import pl.coztymit.exchange.account.domain.exception.TransactionLimitExceededException;
 import pl.coztymit.exchange.account.domain.exception.WalletsLimitExceededException;
 import pl.coztymit.exchange.account.domain.trader.Trader;
-import pl.coztymit.exchange.account.domain.trader.TraderNumber;
 import pl.coztymit.exchange.kernel.Currency;
 import pl.coztymit.exchange.kernel.IdentityId;
 
@@ -27,7 +26,7 @@ class AccountTest {
     @BeforeEach
     public void setUp() {
         trader = new Trader(new TraderNumber("ABC-15-2025-123"), IdentityId.generateNewId());
-        account = new Account(AccountId.generateNewId(),trader);
+        account = new Account(AccountNumber.generateNewId(),trader);
         funds = new Funds(new BigDecimal("100.00"));
 
     }

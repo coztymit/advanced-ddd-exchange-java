@@ -1,13 +1,13 @@
-package pl.coztymit.exchange.account.domain.trader;
+package pl.coztymit.exchange.account.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Embeddable;
 
 import java.time.LocalDate;
 import java.util.Random;
+
 @Embeddable
 public class TraderNumber {
-    //to 3 duże litery myślnik dzień myślnik rok myślnik -3 cyfry AAA-12-2023-456
     @JsonProperty
     private String value;
 

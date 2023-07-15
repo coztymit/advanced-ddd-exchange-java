@@ -1,33 +1,49 @@
 package pl.coztymit.exchange.quoting.application;
 
-import pl.coztymit.exchange.kernel.Money;
+import pl.coztymit.exchange.quoting.domain.MoneyExchanged;
+import pl.coztymit.exchange.quoting.domain.QuoteNumber;
 
 public class PrepareQuoteStatus {
 
-    public static final PrepareQuoteStatus QUOTE_EXISTS = new PrepareQuoteStatus("QUOTE_EXISTS");
-    public static final PrepareQuoteStatus QUOTE_EXPIRED = new PrepareQuoteStatus("QUOTE_EXPIRED");
+    private static final String QUOTE_EXISTS = new String("QUOTE_EXISTS");
+    private static final String QUOTE_EXPIRED = new String("QUOTE_EXPIRED");
+    private static final String QUOTE_PREPARED = new String("QUOTE_PREPARED");
 
     private final String status;
-    private final Money quote;
-
+    private final QuoteNumber quoteNumber;
+    private MoneyExchanged moneyExchanged;
 
     private PrepareQuoteStatus(String status) {
         this.status = status;
-        this.quote = null;
+        this.moneyExchanged = null;
+        this.quoteNumber = null;
     }
-    private PrepareQuoteStatus(String status, Money value) {
+    private PrepareQuoteStatus(String status, MoneyExchanged moneyExchanged, QuoteNumber quoteNumber) {
         this.status = status;
-        this.quote = value;
+        this.moneyExchanged = moneyExchanged;
+        this.quoteNumber = quoteNumber;
     }
 
-    public static PrepareQuoteStatus prepareSuccessStatus(Money quote){
-        return new PrepareQuoteStatus("QUOTE_PREPARED", quote);
+    private PrepareQuoteStatus(String status, QuoteNumber quoteNumber) {
+        this.status = status;
+        this.quoteNumber = quoteNumber;
+    }
+    public static PrepareQuoteStatus prepareSuccessStatus(MoneyExchanged moneyToExchange, QuoteNumber quoteNumber){
+        return new PrepareQuoteStatus(QUOTE_PREPARED, moneyToExchange, quoteNumber);
+    }
+
+    public static PrepareQuoteStatus prepareExistsStatus(QuoteNumber quoteNumber){
+        return new PrepareQuoteStatus(QUOTE_EXISTS, quoteNumber);
     }
 
     public String getStatus() {
         return status;
     }
-    public Money getQuote(){
-        return quote;
+
+    public MoneyExchanged getQuotePrice(){
+        return moneyExchanged;
+    }
+    public QuoteNumber getQuoteId(){
+        return quoteNumber;
     }
 }

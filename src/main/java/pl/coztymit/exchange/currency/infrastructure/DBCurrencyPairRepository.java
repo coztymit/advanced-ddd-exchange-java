@@ -9,6 +9,7 @@ import pl.coztymit.exchange.currency.domain.CurrencyPairRepository;
 import pl.coztymit.exchange.kernel.Currency;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class DBCurrencyPairRepository implements CurrencyPairRepository {
@@ -22,15 +23,15 @@ public class DBCurrencyPairRepository implements CurrencyPairRepository {
     }
 
     @Override
-    public CurrencyPair findById(CurrencyPairId currencyPairId) {
+    public Optional<CurrencyPair> findById(CurrencyPairId currencyPairId) {
         String queryString = "SELECT cp FROM CurrencyPair cp WHERE cp.currencyPairId = :currencyPairId";
         TypedQuery<CurrencyPair> query = entityManager.createQuery(queryString, CurrencyPair.class);
         query.setParameter("currencyPairId", currencyPairId);
 
         try {
-            return query.getSingleResult();
+            return Optional.of(query.getSingleResult());
         } catch (NoResultException e) {
-            throw new EntityNotFoundException("Cannot find CurrencyPair for the provided ID");
+            return Optional.empty();
         }
     }
 
@@ -45,30 +46,30 @@ public class DBCurrencyPairRepository implements CurrencyPairRepository {
     }
 
     @Override
-    public CurrencyPair findByBaseCurrencyAndTargetCurrency(Currency baseCurrency, Currency targetCurrency) {
+    public Optional<CurrencyPair> findByBaseCurrencyAndTargetCurrency(Currency baseCurrency, Currency targetCurrency) {
         String queryString = "SELECT cp FROM CurrencyPair cp WHERE cp.baseCurrency = :baseCurrency AND cp.targetCurrency = :targetCurrency";
         TypedQuery<CurrencyPair> query = entityManager.createQuery(queryString, CurrencyPair.class);
         query.setParameter("baseCurrency", baseCurrency);
         query.setParameter("targetCurrency", targetCurrency);
 
         try {
-            return query.getSingleResult();
+            return Optional.of(query.getSingleResult());
         } catch (NoResultException e) {
-            throw new EntityNotFoundException("Cannot find CurrencyPair for the provided baseCurrency and targetCurrency");
+            return Optional.empty();
         }
     }
 
     @Override
-    public CurrencyPairData findDataByBaseCurrencyAndTargetCurrency(Currency baseCurrency, Currency targetCurrency){
+    public Optional<CurrencyPairData> findDataByBaseCurrencyAndTargetCurrency(Currency baseCurrency, Currency targetCurrency){
         String queryString = "SELECT new pl.coztymit.exchange.currency.domain.CurrencyPairData(cp.currencyPairId.uuid, cp.baseCurrency.value, cp.targetCurrency.value, cp.exchangeRate.baseRate, cp.exchangeRate.adjustedRate) FROM CurrencyPair cp WHERE cp.baseCurrency = :baseCurrency AND cp.targetCurrency = :targetCurrency";
         TypedQuery<CurrencyPairData> query = entityManager.createQuery(queryString, CurrencyPairData.class);
         query.setParameter("baseCurrency", baseCurrency);
         query.setParameter("targetCurrency", targetCurrency);
 
         try {
-            return query.getSingleResult();
+            return Optional.of(query.getSingleResult());
         } catch (NoResultException e) {
-            throw new EntityNotFoundException("Cannot find CurrencyPair for the provided baseCurrency and targetCurrency");
+           return Optional.empty();
         }
     }
 

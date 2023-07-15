@@ -17,22 +17,25 @@ public class InvoiceApplicationService {
 
     private List<InvoiceRepository> invoiceRepository;
     private InvoiceFactory factory;
-
+    private List<NotificationSender> senders;
 
     @Autowired
     public InvoiceApplicationService(List<NotificationSender> senders, List<InvoiceRepository> invoiceRepository) {
         this.invoiceRepository = invoiceRepository;
         this.factory = new InvoiceFactory();
+        this.senders = senders;
     }
 
-    public CreateStatus createInvoice() {
+    @Transactional
+    public CreateStatus createInvoice (){
 
         Invoice invoice = this.factory.createInvoice(null);
-        this.invoiceRepository.forEach( repo -> repo.save(invoice));
+        this.invoiceRepository.forEach(repo -> repo.save(invoice));
 
-
+        senders.forEach(sender->sender.sendNotification(invoice.invoiceNumber()));
         return CreateStatus.Correct(invoice.invoiceNumber());
     }
+
     @Transactional
     public CreateStatus createInvoice(String invoiceNumber)
     {
@@ -54,14 +57,19 @@ public class InvoiceApplicationService {
     }
 
     public final void approveInvoice(String number) {
-         invoiceRepository.forEach(repo ->{
+
+
+        invoiceRepository.forEach(repo ->{
              Invoice invoice = repo.get(new Number(number));
              invoice.approve();
              repo.save(invoice);
+
+
              BookKeeperService bookKeeper = new BookKeeperService();
              Payment payment = bookKeeper.createPayment(invoice);
              // TODO dodać  paymentRepository.save(payment);
          });
+
     }
 
     public final CreateStatus createInvoiceByBookKeeper() {

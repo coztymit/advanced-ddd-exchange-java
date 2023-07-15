@@ -4,8 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Embeddable;
 import pl.coztymit.exchange.kernel.exception.IllegalCurrencyException;
 
-import java.util.Objects;
-
 @Embeddable
 public class Currency {
     @JsonProperty
@@ -22,12 +20,11 @@ public class Currency {
         this.value = value;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Currency currency = (Currency) o;
-        return Objects.equals(value, currency.value);
+    public boolean equals(Currency currency) {
+        if (this == currency) return true;
+        if (currency == null || getClass() != currency.getClass()) return false;
+
+        return this.value.equals(currency.value);
     }
 
     public String toString() {

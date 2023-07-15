@@ -5,54 +5,67 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pl.coztymit.exchange.account.domain.trader.TraderNumber;
-import pl.coztymit.exchange.kernel.Currency;
-import pl.coztymit.exchange.kernel.Money;
 import pl.coztymit.exchange.negotiation.domain.*;
 import pl.coztymit.exchange.negotiation.domain.exception.NegotiationNotFoundException;
 import pl.coztymit.exchange.negotiation.domain.policy.NegotiationAutomaticApprovePolicy;
-import pl.coztymit.exchange.quoting.application.QuoteApplicationService;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public class NegotiationService {
-    private Log LOG = LogFactory.getLog(NegotiationService.class);
+public class NegotiationApplicationService {
+    private Log LOG = LogFactory.getLog(NegotiationApplicationService.class);
 
     private final NegotiationRepository negotiationRepository;
     private final ManualNegotiationApproveNotifier manualNegotiationApproveNotifier;
-    private List<NegotiationAutomaticApprovePolicy> negotiationAmountAutomaticApprovePolicies;
+    private final List<NegotiationAutomaticApprovePolicy> negotiationAmountAutomaticApprovePolicies;
+    private final BaseExchangeRateAdvisor baseExchangeRateAdvisor;
 
     @Autowired
-    public NegotiationService(NegotiationRepository negotiationRepository, ManualNegotiationApproveNotifier manualNegotiationApproveNotifier, List<NegotiationAutomaticApprovePolicy> negotiationAmountAutomaticApprovePolicies) {
+    public NegotiationApplicationService(NegotiationRepository negotiationRepository,
+                                         ManualNegotiationApproveNotifier manualNegotiationApproveNotifier,
+                                         List<NegotiationAutomaticApprovePolicy> negotiationAmountAutomaticApprovePolicies,
+                                         BaseExchangeRateAdvisor baseExchangeRateAdvisor) {
         this.negotiationRepository = negotiationRepository;
         this.manualNegotiationApproveNotifier = manualNegotiationApproveNotifier;
         this.negotiationAmountAutomaticApprovePolicies = negotiationAmountAutomaticApprovePolicies;
+        this.baseExchangeRateAdvisor = baseExchangeRateAdvisor;
     }
 
     @Transactional
     public CreateNegotiationStatus createNegotiation(CreateNegotiationCommand command) {
+        Negotiator negotiator = new Negotiator(command.identityId());
 
-        if(negotiationRepository.alreadyExistsActiveNegotiationForTrader(command.traderNumber(),
-                command.baseCurrency(), command.targetCurrency(),
-                command.proposedRate(), command.proposedExchangeAmount())){
-            return CreateNegotiationStatus.ALREADY_EXISTS;
-        }
-        //TODO trzeba dostarczyć obecny kurs waluty
-        //zadanie
-        BigDecimal baseExchangeRate = new BigDecimal("4.5");
-
-        Negotiation negotiation = new Negotiation(
-                command.traderNumber(),
-                command.proposedExchangeAmount(),
+        if(negotiationRepository.alreadyExistsActiveNegotiationForNegotiator(
+                negotiator,
                 command.baseCurrency(),
                 command.targetCurrency(),
-                new NegotiationRate(command.proposedRate(),baseExchangeRate)
-              );
-        negotiationRepository.save(negotiation);
+                command.proposedRate(),
+                command.proposedExchangeAmount())){
+            return CreateNegotiationStatus.ALREADY_EXISTS;
+        }
+
+        Optional<BigDecimal> optionalBaseExchangeRate = baseExchangeRateAdvisor.baseExchangeRate(command.baseCurrency(), command.targetCurrency());
+
+        if(!optionalBaseExchangeRate.isPresent()){
+            return CreateNegotiationStatus.CURRENCY_PAIR_NOT_SUPPORTED;
+        }
+
+        BigDecimal baseExchangeRate = optionalBaseExchangeRate.get();
+
+
+        Negotiation negotiation = new Negotiation(
+            negotiator,
+            command.proposedExchangeAmount(),
+            command.baseCurrency(),
+            command.targetCurrency(),
+            new NegotiationRate(command.proposedRate(), baseExchangeRate)
+        );
+
         AutomaticNegotiationStatus status = negotiation.tryAutomaticApprove(negotiationAmountAutomaticApprovePolicies);
+        negotiationRepository.save(negotiation);
 
         if(status.isApproved()){
             return CreateNegotiationStatus.APPROVED;
@@ -97,12 +110,14 @@ public class NegotiationService {
         }
     }
 
-    public NegotiationRateResponse findAcceptedActiveNegotiationRate(TraderNumber traderNumber, Currency baseCurrency, Currency targetCurrency, Money proposedExchangeAmount) {
-        try {
-            return new NegotiationRateResponse(negotiationRepository.findAcceptedActiveNegotiation(traderNumber, baseCurrency, targetCurrency, proposedExchangeAmount));
-        } catch (NegotiationNotFoundException e) {
-            LOG.error("Negotiation not found", e);
-            return NegotiationRateResponse.failed();
-        }
+    public NegotiationRateResponse findAcceptedActiveNegotiationRate(FindAcceptedActiveNegotiationRateCommand command) {
+
+        Optional<BigDecimal> acceptedActiveNegotiation = negotiationRepository.findAcceptedActiveNegotiation(
+                new Negotiator(command.identityId()),
+                command.baseCurrency(),
+                command.targetCurrency(),
+                command.proposedExchangeAmount());
+
+        return acceptedActiveNegotiation.map(NegotiationRateResponse::new).orElse(NegotiationRateResponse.failed());
     }
 }

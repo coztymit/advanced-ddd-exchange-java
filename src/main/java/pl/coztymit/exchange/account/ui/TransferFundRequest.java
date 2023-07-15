@@ -2,12 +2,12 @@ package pl.coztymit.exchange.account.ui;
 
 import java.math.BigDecimal;
 
-public class TransferFoundRequest {
+public class TransferFundRequest {
 
     private BigDecimal amount;
     private String currency;
 
-    public TransferFoundRequest(BigDecimal amount, String currency) {
+    public TransferFundRequest(BigDecimal amount, String currency) {
 
         this.amount = amount;
         this.currency = currency;

@@ -1,22 +1,19 @@
 package pl.coztymit.exchange.identity.ui;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import pl.coztymit.exchange.identity.application.CreateIdentityStatus;
 import pl.coztymit.exchange.identity.application.IdentityApplicationService;
 import pl.coztymit.exchange.identity.application.IdentityResponse;
-import pl.coztymit.exchange.identity.domain.IdentityData;
-import pl.coztymit.exchange.identity.domain.IdentityRepository;
 import pl.coztymit.exchange.kernel.IdentityId;
 
 import java.util.Collections;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -24,8 +21,6 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @AutoConfigureMockMvc
 class IdentityControllerTest {
@@ -45,8 +40,9 @@ class IdentityControllerTest {
 
     @Test
     public void createIdentity() throws Exception {
-        IdentityId identityId = new IdentityId(UUID.randomUUID());
-        given(identityApplicationService.createIdentity(any(), any(), any(), any())).willReturn(identityId);
+
+        CreateIdentityStatus createIdentityStatus = CreateIdentityStatus.prepareExistsStatus();
+        given(identityApplicationService.createIdentity(any())).willReturn(createIdentityStatus);
 
         mockMvc.perform(post("/identity")
                         .contentType("application/json")

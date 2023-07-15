@@ -1,9 +1,9 @@
 package pl.coztymit.exchange.account.domain.trader;
 
 import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.Column;
 import pl.coztymit.exchange.kernel.IdentityId;
+import pl.coztymit.exchange.account.domain.TraderNumber;
 
 public class Trader {
 

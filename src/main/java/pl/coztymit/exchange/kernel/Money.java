@@ -1,15 +1,11 @@
 package pl.coztymit.exchange.kernel;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import pl.coztymit.exchange.accounting.domain.exception.DifferentCurrenciesException;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.math.RoundingMode;
-import java.util.Objects;
 @Embeddable
 public class Money {
 
@@ -54,13 +50,12 @@ public class Money {
         return new Money(money.value.add(money2.value), this.currency);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Money money = (Money) o;
-        return Objects.equals(value, money.value) &&
-                Objects.equals(currency, money.currency);
+    public boolean equals(Money money) {
+        if (this == money) return true;
+        if (money == null || getClass() != money.getClass()) return false;
+
+        return value.equals(this.value) &&
+                currency.equals(money.currency);
     }
 
 

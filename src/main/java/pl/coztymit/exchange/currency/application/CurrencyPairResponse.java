@@ -9,6 +9,7 @@ public class CurrencyPairResponse {
     private BigDecimal baseExchangeRate;
     private BigDecimal adjustedExchangeRate;
     private UUID currencyPairId;
+    private String status;
 
     private CurrencyPairResponse() {
     }
@@ -19,6 +20,19 @@ public class CurrencyPairResponse {
         this.targetCurrency = targetCurrency;
         this.baseExchangeRate = baseExchangeRate;
         this.adjustedExchangeRate = adjustedExchangeRate;
+        this.status = "SUCCESS";
+    }
+
+    private CurrencyPairResponse(String status){
+        this.status = status;
+    }
+
+    public static CurrencyPairResponse failure(){
+        return new CurrencyPairResponse("FAILURE");
+    }
+
+    public String getStatus(){
+        return status;
     }
 
     public String getBaseCurrency() {
@@ -60,5 +74,9 @@ public class CurrencyPairResponse {
 
     public void setCurrencyPairId(UUID currencyPairId) {
         this.currencyPairId = currencyPairId;
+    }
+
+    public BigDecimal getExchangeRate() {
+        return adjustedExchangeRate == null ? baseExchangeRate : adjustedExchangeRate;
     }
 }

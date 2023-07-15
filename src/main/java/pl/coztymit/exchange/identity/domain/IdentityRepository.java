@@ -11,4 +11,6 @@ public interface IdentityRepository {
     List<IdentityId> findIdentityIds();
 
     Optional<IdentityData> findByIdentityId(IdentityId identityId);
+
+    boolean existsByPesel(PESEL pesel);
 }

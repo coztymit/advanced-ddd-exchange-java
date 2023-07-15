@@ -14,8 +14,8 @@ public class DiscountLevel {
         this.discount = discount;
     }
 
-    public BigDecimal calculate(BigDecimal value) {
-        return value.multiply(discount, new MathContext(2, RoundingMode.HALF_UP));
+    public Rate calculate(Rate value) {
+        return value.multiply(discount);
     }
 
 

@@ -5,15 +5,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pl.coztymit.exchange.account.application.AccountApplicationService;
-import pl.coztymit.exchange.account.domain.trader.TraderNumber;
 import pl.coztymit.exchange.kernel.Currency;
-import pl.coztymit.exchange.kernel.Money;
-
-
 import pl.coztymit.exchange.quoting.domain.*;
 import pl.coztymit.exchange.quoting.domain.exception.QuoteNotFoundException;
-import pl.coztymit.exchange.quoting.domain.policy.OneDayQuoteExpirationDatePolicy;
 import pl.coztymit.exchange.quoting.domain.policy.QuoteExpirationDatePolicy;
 
 import java.util.List;
@@ -23,7 +17,7 @@ import java.util.UUID;
 @Service
 public class QuoteApplicationService {
     private Log LOG = LogFactory.getLog(QuoteApplicationService.class);
-    //Zadanie 3 - tu mogą być advisory z nazwami typu subskrypcja itd. obecna forma jest popranwa do zadania zmieinć to pojedyncze advisory
+
     @Autowired
     private List<ExchangeRateAdvisor> currencyExchangeRateAdvisors;
     @Autowired
@@ -33,26 +27,32 @@ public class QuoteApplicationService {
 
     @Transactional
     public PrepareQuoteStatus prepareQuote(PrepareQuoteCommand prepareQuoteCommand){
-
         Currency currencyToSell = new Currency(prepareQuoteCommand.currencyToSell());
         Currency currencyToBuy = new Currency(prepareQuoteCommand.currencyToBuy());
-        TraderNumber traderNumber = prepareQuoteCommand.traderNumber();
-        Money moneyToExchange = prepareQuoteCommand.moneyToExchange();
+        Requester requester = new Requester(prepareQuoteCommand.identityId());
 
-        Optional<Quote> quote = quoteRepository.findActiveQuote(traderNumber, currencyToSell, currencyToBuy, moneyToExchange);
+        MoneyToExchange moneyToExchange = new MoneyToExchange(prepareQuoteCommand.moneyToExchangeValue(),
+                new Currency(prepareQuoteCommand.moneyToExchangeCurrency()));
+
+        Optional<Quote> quote = quoteRepository.findActiveQuote(requester, currencyToSell, currencyToBuy, moneyToExchange);
         if (quote.isPresent()){
-            //TODO - zmieić na odpowiedź z danymi albo event bus :)
-            return PrepareQuoteStatus.QUOTE_EXISTS;
+            return PrepareQuoteStatus.prepareExistsStatus(quote.get().getQuoteId());
         }
 
-        ExchangeRate bestExchangeRate = exchangeDomainService.getBestExchangeRate(currencyExchangeRateAdvisors, currencyToSell, currencyToBuy);
-        Money moneyExchanged = bestExchangeRate.exchange(moneyToExchange);
+        BestExchangeRate bestExchangeRate = exchangeDomainService.getBestExchangeRate(
+                requester,
+                moneyToExchange,
+                currencyExchangeRateAdvisors,
+                currencyToSell,
+                currencyToBuy);
 
-        QuoteExpirationDatePolicy quoteExpirationDatePolicy = exchangeDomainService.determineQuoteExpirationDatePolicy(traderNumber);
+        MoneyExchanged moneyExchanged = bestExchangeRate.exchange(moneyToExchange);
+
+        QuoteExpirationDatePolicy quoteExpirationDatePolicy = exchangeDomainService.determineQuoteExpirationDatePolicy(requester);
 
         Quote preparedQuote =
                 new Quote(
-                        prepareQuoteCommand.traderNumber(),
+                        requester,
                         bestExchangeRate,
                         moneyToExchange,
                         moneyExchanged,
@@ -60,15 +60,14 @@ public class QuoteApplicationService {
 
         quoteRepository.save(preparedQuote);
 
-        return PrepareQuoteStatus.prepareSuccessStatus(moneyExchanged);
-
+        return PrepareQuoteStatus.prepareSuccessStatus(moneyExchanged, preparedQuote.getQuoteId());
     }
 
     @Transactional
     public AcceptQuoteStatus acceptQuote(UUID quoteId) {
 
         try {
-            Quote quote = quoteRepository.getQuote(new QuoteId(quoteId));
+            Quote quote = quoteRepository.getQuote(new QuoteNumber(quoteId));
             quote.accept();
             quoteRepository.save(quote);
             return AcceptQuoteStatus.SUCCESS;
@@ -87,13 +86,26 @@ public class QuoteApplicationService {
             quoteRepository.save(quote);
         });
     }
+
     @Transactional
-    public void expireAllQuotesForCurrency(Currency currency) {
-        //TODO zadanie zastanowić się jak to ogarnąć - szyna rest - skąd ma vbyć request i jaki kierunek zależności
-        List<Quote> quotes = quoteRepository.findAllQuotesToExpire();
+    public void expireAllQuotesForCurrency(Currency currencyToSell, Currency currencyToBuy) {
+        List<Quote> quotes = quoteRepository.findAllQuotesToExpireByCurrency(currencyToSell, currencyToBuy);
         quotes.forEach(quote -> {
             quote.expire();
             quoteRepository.save(quote);
         });
+    }
+
+    @Transactional
+    public AcceptQuoteStatus reject(UUID quoteId) {
+        try {
+            Quote quote = quoteRepository.getQuote(new QuoteNumber(quoteId));
+            quote.reject();
+            quoteRepository.save(quote);
+            return AcceptQuoteStatus.SUCCESS;
+        } catch (QuoteNotFoundException e) {
+            LOG.error("Quote not found", e);
+            return AcceptQuoteStatus.QUOTE_NOT_FOUND;
+        }
     }
 }

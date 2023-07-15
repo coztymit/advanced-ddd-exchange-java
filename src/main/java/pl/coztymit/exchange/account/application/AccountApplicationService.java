@@ -6,19 +6,19 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import pl.coztymit.exchange.account.domain.*;
 import pl.coztymit.exchange.account.domain.exception.AccountNotFoundException;
 import pl.coztymit.exchange.account.domain.exception.InsufficientFundsException;
 import pl.coztymit.exchange.account.domain.exception.TransactionLimitExceededException;
 import pl.coztymit.exchange.account.domain.exception.WalletsLimitExceededException;
-import pl.coztymit.exchange.account.domain.trader.TraderNumber;
 import pl.coztymit.exchange.kernel.Currency;
 import pl.coztymit.exchange.kernel.IdentityId;
-import pl.coztymit.exchange.account.domain.*;
 import pl.coztymit.exchange.kernel.Money;
+import pl.coztymit.exchange.account.domain.TraderNumber;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import static java.util.Objects.requireNonNull;
 
@@ -43,20 +43,20 @@ public class AccountApplicationService {
         AccountStatus accountStatus = accountFactory.createAccount(identityId);
         if (accountStatus.isSuccess()) {
             accountRepository.save(accountStatus.account());
-            return CreateAccountStatus.success(accountStatus.status(), identityId, accountStatus.accountId(), accountStatus.traderNumber());
+            return CreateAccountStatus.success(accountStatus.status(), identityId, accountStatus.accountNumber(), accountStatus.traderNumber());
         }
         return CreateAccountStatus.createFailAccountStatus(accountStatus.status(), identityId);
     }
 
     @Transactional
-    public DepositFundsStatus depositFundsByCard(String traderNumber, BigDecimal fundsToDeposit, Currency currency){
+    public DepositFundsStatus depositFundsByCard(DepositFundsByCardCommand command){
 
-        Optional<Account> optionalAccount = accountRepository.findAccountFor(new TraderNumber(traderNumber));
+        Optional<Account> optionalAccount = accountRepository.findAccountFor(new TraderNumber(command.traderNumber()));
 
         try {
             Account account = optionalAccount.orElseThrow(() -> new AccountNotFoundException("Account not found"));
-            depositFund(account, fundsToDeposit, TransactionType.CARD, currency);
-            return DepositFundsStatus.success(account.accountId().toString());
+            depositFund(account, command.fundsToDeposit(), TransactionType.CARD, command.currency());
+            return DepositFundsStatus.success(account.accountNumber().toString());
         }
         catch (AccountNotFoundException e) {
             LOG.error("Account Not Found", e);
@@ -71,13 +71,13 @@ public class AccountApplicationService {
     }
 
     @Transactional
-    public DepositFundsStatus depositFunds(UUID accountId, BigDecimal fundsToDeposit, Currency currency) {
-        Optional<Account> optionalAccount = accountRepository.find(new AccountId(accountId));
+    public DepositFundsStatus depositFunds(DepositFundCommand command) {
+        Optional<Account> optionalAccount = accountRepository.find(new AccountNumber(command.accountNumber()));
 
         try{
             Account account = optionalAccount.orElseThrow(() -> new AccountNotFoundException("Account not found"));
-            depositFund(account, fundsToDeposit, TransactionType.DEPOSIT, currency);
-            return DepositFundsStatus.success(account.accountId().toString());
+            depositFund(account, command.fundsToDeposit(), TransactionType.DEPOSIT, command.currency());
+            return DepositFundsStatus.success(account.accountNumber().toString());
         }catch (AccountNotFoundException e) {
             LOG.error("Account Not Found", e);
             return DepositFundsStatus.ACCOUNT_NOT_FOUND;
@@ -91,12 +91,12 @@ public class AccountApplicationService {
     }
 
     @Transactional
-    public BuyCurrencyStatus buyCurrency(String traderNumber, Money currencyToBuy, ExchangeRateCommand exchangeRateCommand) {
+    public BuyCurrencyStatus buyCurrency(String traderNumber, Money currencyToBuy, ExchangeRateCommand command) {
 
         ExchangeRate exchangeRate = new ExchangeRate(
-                new Currency(exchangeRateCommand.currencyToSell()),
-                new Currency(exchangeRateCommand.currencyToBuy()),
-                exchangeRateCommand.rate());
+                new Currency(command.currencyToSell()),
+                new Currency(command.currencyToBuy()),
+                command.rate());
 
         try{
             Optional<Account> optionalAccount = accountRepository.findAccountFor(new TraderNumber(traderNumber));
@@ -115,12 +115,12 @@ public class AccountApplicationService {
     }
 
     @Transactional
-    public WithdrawStatus withdrawFunds(String traderId, BigDecimal fundsToWithdraw, Currency currency) {
+    public WithdrawStatus withdrawFunds(WithdrawFundsCommand command) {
 
         try{
-            Optional<Account> optionalAccount = accountRepository.findAccountFor(new TraderNumber(traderId));
+            Optional<Account> optionalAccount = accountRepository.findAccountFor(new TraderNumber(command.traderNumber()));
             Account account = optionalAccount.orElseThrow(() -> new AccountNotFoundException("Account not found"));
-            account.withdrawFunds(new Funds(fundsToWithdraw, currency), TransactionType.WITHDRAW);
+            account.withdrawFunds(new Funds(command.fundsToWithdraw(), command.currency()), TransactionType.WITHDRAW);
             accountRepository.save(account);
             return WithdrawStatus.WITHDRAW_SUCCESS;
 
@@ -137,16 +137,16 @@ public class AccountApplicationService {
     }
 
     @Transactional
-    public TransferFundsStatus transferFundsBetweenAccount(UUID fromAccountId, UUID toAccountId, BigDecimal fundsToTransfer, String currency){
+    public TransferFundsStatus transferFundsBetweenAccount(TransferFundsBetweenAccountCommand command) {
         //TODO Zadanie 1
         try{
-            Optional<Account> optionalFromAccount = accountRepository.find(new AccountId(fromAccountId));
+            Optional<Account> optionalFromAccount = accountRepository.find(new AccountNumber(command.fromAccountId()));
             Account fromAccount = optionalFromAccount.orElseThrow(() -> new AccountNotFoundException("Account not found"));
 
-            Optional<Account> optionalToAccount = accountRepository.find(new AccountId(toAccountId));
+            Optional<Account> optionalToAccount = accountRepository.find(new AccountNumber(command.toAccountId()));
             Account toAccount = optionalToAccount.orElseThrow(() -> new AccountNotFoundException("Account not found"));
 
-            new TransferFundsDomainService().transferFunds(fromAccount, toAccount,  new Funds(fundsToTransfer, new Currency(currency)));
+            new TransferFundsDomainService().transferFunds(fromAccount, toAccount,  new Funds(command.fundsToTransfer(), new Currency(command.currency())));
 
             accountRepository.save(fromAccount);
             accountRepository.save(toAccount);
@@ -167,8 +167,13 @@ public class AccountApplicationService {
 
     }
 
+    public List<WalletData> getAllWalletsForTrader(String traderNumber){
+       return accountRepository.findAllByTraderNumber(new TraderNumber(traderNumber));
+    }
+
     private void depositFund(Account account, BigDecimal fundsToDeposit, TransactionType transactionType, Currency currency) throws WalletsLimitExceededException, TransactionLimitExceededException {
         account.depositFunds(new Funds(fundsToDeposit, currency), transactionType);
         accountRepository.save(account);
     }
+
 }

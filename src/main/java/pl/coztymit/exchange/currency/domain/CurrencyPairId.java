@@ -1,10 +1,12 @@
 package pl.coztymit.exchange.currency.domain;
 
-import pl.coztymit.exchange.quoting.domain.QuoteId;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.UUID;
 
 public class CurrencyPairId {
+
+    @JsonProperty
     private UUID uuid;
 
     private CurrencyPairId(){

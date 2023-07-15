@@ -1,9 +1,11 @@
 package pl.coztymit.exchange.negotiation.ui;
 
+import pl.coztymit.exchange.kernel.IdentityId;
+
 import java.math.BigDecimal;
 
 public class NegotiationRequest {
-    private String traderNumber;
+    private IdentityId identityId;
     private String baseCurrency;
     private String targetCurrency;
     private BigDecimal proposedExchangeAmount;
@@ -13,8 +15,8 @@ public class NegotiationRequest {
     public NegotiationRequest() {
     }
 
-    public NegotiationRequest(String traderNumber, String baseCurrency, String targetCurrency, BigDecimal proposedExchangeAmount, BigDecimal proposedRate, String proposedExchangeCurrency) {
-        this.traderNumber = traderNumber;
+    public NegotiationRequest(IdentityId identityId, String baseCurrency, String targetCurrency, BigDecimal proposedExchangeAmount, BigDecimal proposedRate, String proposedExchangeCurrency) {
+        this.identityId = identityId;
         this.baseCurrency = baseCurrency;
         this.targetCurrency = targetCurrency;
         this.proposedExchangeAmount = proposedExchangeAmount;
@@ -22,12 +24,12 @@ public class NegotiationRequest {
         this.proposedExchangeCurrency = proposedExchangeCurrency;
     }
 
-    public String getTraderNumber() {
-        return traderNumber;
+    public IdentityId getIdentityId() {
+        return identityId;
     }
 
-    public void setTraderNumber(String traderNumber) {
-        this.traderNumber = traderNumber;
+    public void setIdentityId(IdentityId identityId) {
+        this.identityId = identityId;
     }
 
     public String getBaseCurrency() {

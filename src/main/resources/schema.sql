@@ -8,36 +8,36 @@ CREATE TABLE identities (
 );
 
 CREATE TABLE accounts (
-  account_id UUID NOT NULL PRIMARY KEY,
+  account_number UUID NOT NULL PRIMARY KEY,
   identity_id UUID NOT NULL,
   trader_number VARCHAR(15) NOT NULL
 );
 
 CREATE TABLE transactions (
   transaction_number UUID NOT NULL PRIMARY KEY,
-  account_id UUID NOT NULL,
+  account_number UUID NOT NULL,
   transaction_type VARCHAR(255) NOT NULL,
   fund_value DECIMAL(19, 2) NOT NULL,
   fund_currency VARCHAR(3) NOT NULL,
   transaction_date TIMESTAMP NOT NULL,
-  CONSTRAINT fk_transaction_account_id FOREIGN KEY (account_id) REFERENCES accounts(account_id)
+  CONSTRAINT fk_transaction_account_number FOREIGN KEY (account_number) REFERENCES accounts(account_number)
 );
 
 CREATE TABLE wallets (
   wallet_id UUID NOT NULL PRIMARY KEY,
-  account_id UUID NOT NULL,
+  account_number UUID NOT NULL,
   fund_value DECIMAL(19, 2) NOT NULL,
   fund_currency VARCHAR(3) NOT NULL,
-  CONSTRAINT fk_wallet_account_id FOREIGN KEY (account_id) REFERENCES accounts(account_id)
+  CONSTRAINT fk_wallet_account_number FOREIGN KEY (account_number) REFERENCES accounts(account_number)
 );
 
 CREATE TABLE quotes (
     quote_id UUID NOT NULL PRIMARY KEY,
-    trader_number VARCHAR(15) NOT NULL,
+    requester_identity_id UUID NOT NULL,
     expiration_date TIMESTAMP NOT NULL,
-    exchange_rate_currency_to_sell VARCHAR(3) NOT NULL,
-    exchange_rate_currency_to_buy VARCHAR(3) NOT NULL,
-    exchange_rate DECIMAL(15, 2) NOT NULL,
+    best_exchange_rate_currency_to_sell VARCHAR(3) NOT NULL,
+    best_exchange_rate_currency_to_buy VARCHAR(3) NOT NULL,
+    best_exchange_rate DECIMAL(15, 2) NOT NULL,
     to_exchange_value DECIMAL(15, 2) NOT NULL,
     to_exchange_currency VARCHAR(3) NOT NULL,
     exchanged_value DECIMAL(15, 2) NOT NULL,
@@ -54,9 +54,9 @@ CREATE TABLE currency_pairs (
     status VARCHAR(50) NOT NULL
 );
 CREATE TABLE negotiations (
-    negotiation_id uuid NOT NULL PRIMARY KEY,
-    trader_number VARCHAR(15) NOT NULL,
-    operator_id uuid,
+    negotiation_id UUID NOT NULL PRIMARY KEY,
+    negotiator_identity_id UUID NOT NULL,
+    operator_id UUID,
     expiration_date TIMESTAMP,
     target_currency VARCHAR(3) NOT NULL,
     base_currency VARCHAR(3) NOT NULL,

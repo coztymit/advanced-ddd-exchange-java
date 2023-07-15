@@ -13,6 +13,7 @@ public class ExchangeRate {
     }
 
     public ExchangeRate(BigDecimal baseRate) {
+
         this.baseRate = baseRate;
     }
     ExchangeRate(BigDecimal baseRate, BigDecimal adjustedRate) {

@@ -2,9 +2,6 @@ package pl.coztymit.exchange.quoting.domain;
 
 
 import jakarta.persistence.*;
-import pl.coztymit.exchange.account.domain.AccountId;
-import pl.coztymit.exchange.account.domain.trader.TraderNumber;
-import pl.coztymit.exchange.kernel.Money;
 import pl.coztymit.exchange.quoting.domain.policy.QuoteExpirationDatePolicy;
 
 //Oferta
@@ -15,33 +12,33 @@ public class Quote {
     @Embedded
     @AttributeOverride(name = "uuid", column = @Column(name = "quote_id"))
     @EmbeddedId
-    private QuoteId quoteId;
+    private QuoteNumber quoteNumber;
 
-    @AttributeOverride(name = "value", column = @Column(name = "trader_number"))
-    private TraderNumber traderNumber;
+    @AttributeOverride(name = "identityId.uuid", column = @Column(name = "requester_identity_id"))
+    private Requester requester;
 
     @AttributeOverride(name = "expirationDate", column = @Column(name = "expiration_date"))
     private ExpirationDate expirationDate;
 
     @AttributeOverrides({
-            @AttributeOverride(name = "currencyToSell.value", column = @Column(name = "exchange_rate_currency_to_sell")),
-            @AttributeOverride(name = "currencyToBuy.value", column = @Column(name = "exchange_rate_currency_to_buy")),
-            @AttributeOverride(name = "rate", column = @Column(name = "exchange_rate"))
+            @AttributeOverride(name = "currencyToSell.value", column = @Column(name = "best_exchange_rate_currency_to_sell")),
+            @AttributeOverride(name = "currencyToBuy.value", column = @Column(name = "best_exchange_rate_currency_to_buy")),
+            @AttributeOverride(name = "rate.value", column = @Column(name = "best_exchange_rate"))
 
     })
-    private ExchangeRate bestExchangeRate;
+    private BestExchangeRate bestExchangeRate;
 
     @AttributeOverrides({
             @AttributeOverride(name = "value", column = @Column(name = "to_exchange_value")),
             @AttributeOverride(name = "currency.value", column = @Column(name = "to_exchange_currency"))
     })
-    private Money moneyToExchange;
+    private MoneyToExchange moneyToExchange;
 
     @AttributeOverrides({
             @AttributeOverride(name = "value", column = @Column(name = "exchanged_value")),
             @AttributeOverride(name = "currency.value", column = @Column(name = "exchanged_currency"))
     })
-    private Money moneyExchanged;
+    private MoneyExchanged moneyExchanged;
 
     @AttributeOverride(name = "status", column = @Column(name = "status"))
     private QuoteStatus quoteStatus;
@@ -49,9 +46,9 @@ public class Quote {
     private Quote(){
     }
 
-    public Quote(TraderNumber traderNumber, ExchangeRate bestExchangeRate, Money moneyToExchange, Money moneyExchanged, QuoteExpirationDatePolicy quoteExpirationDatePolicy) {
-        this.quoteId = QuoteId.generate();
-        this.traderNumber = traderNumber;
+    public Quote(Requester requester, BestExchangeRate bestExchangeRate, MoneyToExchange moneyToExchange, MoneyExchanged moneyExchanged, QuoteExpirationDatePolicy quoteExpirationDatePolicy) {
+        this.quoteNumber = QuoteNumber.generate();
+        this.requester = requester;
         this.bestExchangeRate = bestExchangeRate;
         this.moneyToExchange = moneyToExchange;
         this.moneyExchanged = moneyExchanged;
@@ -72,5 +69,9 @@ public class Quote {
     public void expire() {
         if (this.quoteStatus != QuoteStatus.ACCEPTED && this.quoteStatus != QuoteStatus.REJECTED)
         this.quoteStatus = QuoteStatus.EXPIRED;
+    }
+
+    public QuoteNumber getQuoteId() {
+        return quoteNumber;
     }
 }

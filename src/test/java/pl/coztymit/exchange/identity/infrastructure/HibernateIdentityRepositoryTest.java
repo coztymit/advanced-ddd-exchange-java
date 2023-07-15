@@ -5,9 +5,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import pl.coztymit.exchange.identity.domain.Identity;
-import pl.coztymit.exchange.identity.domain.IdentityData;
-import pl.coztymit.exchange.identity.domain.IdentityFactory;
+import pl.coztymit.exchange.identity.domain.*;
+import pl.coztymit.exchange.identity.domain.exception.IdentityAlreadyExistsException;
 import pl.coztymit.exchange.kernel.IdentityId;
 
 import java.util.List;
@@ -22,14 +21,15 @@ class HibernateIdentityRepositoryTest {
     private HibarnateIdentityRepository repository;
     private IdentityFactory identityFactory;
     private Identity identity;
+
     @BeforeEach
-    public void setUp() {
-        identityFactory = new IdentityFactory();
+    public void setUp() throws IdentityAlreadyExistsException {
+        identityFactory = new IdentityFactory(repository);
         String pesel = "55072993619";
         String firstName = "John";
         String surname = "Doe";
         String email = "kontakt@coztymit.pl";
-        identity = identityFactory.create(pesel, firstName, surname, email);
+        identity = identityFactory.create(new PESEL(pesel), new FirstName(firstName), new Surname(surname), new Email(email));
     }
 
     @Test

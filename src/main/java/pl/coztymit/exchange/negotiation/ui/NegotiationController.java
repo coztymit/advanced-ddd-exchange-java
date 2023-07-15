@@ -3,68 +3,61 @@ package pl.coztymit.exchange.negotiation.ui;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.coztymit.exchange.account.domain.trader.TraderNumber;
 import pl.coztymit.exchange.kernel.Currency;
 import pl.coztymit.exchange.kernel.Money;
-import pl.coztymit.exchange.negotiation.application.CreateNegotiationCommand;
-import pl.coztymit.exchange.negotiation.application.CreateNegotiationStatus;
-import pl.coztymit.exchange.negotiation.application.NegotiationRateResponse;
-import pl.coztymit.exchange.negotiation.application.NegotiationService;
-import pl.coztymit.exchange.negotiation.domain.Negotiation;
+import pl.coztymit.exchange.negotiation.application.*;
 
-import java.math.BigDecimal;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/negotiations")
 public class NegotiationController {
 
-    private final NegotiationService negotiationService;
+    private final NegotiationApplicationService negotiationApplicationService;
 
     @Autowired
-    public NegotiationController(NegotiationService negotiationService) {
-        this.negotiationService = negotiationService;
+    public NegotiationController(NegotiationApplicationService negotiationApplicationService) {
+        this.negotiationApplicationService = negotiationApplicationService;
     }
 
     @PostMapping("/create")
     public CreateNegotiationStatus createNegotiation(@RequestBody NegotiationRequest request) {
         CreateNegotiationCommand createNegotiationCommand = new CreateNegotiationCommand(
-                new TraderNumber(request.getTraderNumber()),
+                request.getIdentityId(),
                 new Currency(request.getBaseCurrency()),
                 new Currency(request.getTargetCurrency()),
                 new Money(request.getProposedExchangeAmount(), new Currency(request.getProposedExchangeCurrency())),
                 request.getProposedRate());
 
-        return negotiationService.createNegotiation(createNegotiationCommand);
+        return negotiationApplicationService.createNegotiation(createNegotiationCommand);
     }
 
     @PutMapping("/{negotiationId}/approve")
     public ResponseEntity approveNegotiation(@PathVariable UUID negotiationId, @RequestParam UUID operatorId) {
-        negotiationService.approveNegotiation(negotiationId, operatorId);
+        negotiationApplicationService.approveNegotiation(negotiationId, operatorId);
         return ResponseEntity.ok().build();
     }
     @PutMapping("/{negotiationId}/reject")
     public ResponseEntity rejectNegotiation(@PathVariable UUID negotiationId, @RequestParam UUID operatorId) {
-        negotiationService.rejectNegotiation(negotiationId, operatorId);
+        negotiationApplicationService.rejectNegotiation(negotiationId, operatorId);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{id}")
     public NegotiationRateResponse getNegotiation(@PathVariable("id") UUID negotiationId)  {
-        return negotiationService.getNegotiationRateIfApproved(negotiationId);
+        return negotiationApplicationService.getNegotiationRateIfApproved(negotiationId);
     }
 
     @GetMapping("/find-approved")
-    public NegotiationRateResponse findAcceptedNegotiation(@RequestParam String traderID,
-                                               @RequestParam String baseCurrency,
-                                               @RequestParam String targetCurrency,
-                                               @RequestParam BigDecimal proposedExchangeAmount,
-                                               @RequestParam String proposedExchangeCurrency) {
+    public NegotiationRateResponse findAcceptedNegotiation(@RequestBody FindAcceptedNegotiationRequest request) {
+        FindAcceptedActiveNegotiationRateCommand findAcceptedActiveNegotiationRateCommand =
+                new FindAcceptedActiveNegotiationRateCommand(
+                    request.identityId(),
+                    new Currency(request.baseCurrency()),
+                    new Currency(request.targetCurrency()),
+                    new Money(request.proposedExchangeAmount(), new Currency(request.proposedExchangeCurrency())));
 
-        return negotiationService.findAcceptedActiveNegotiationRate(
-                new TraderNumber(traderID),
-                new Currency(baseCurrency),
-                new Currency(targetCurrency),
-                new Money(proposedExchangeAmount, new Currency(proposedExchangeCurrency)));
+        return negotiationApplicationService.findAcceptedActiveNegotiationRate(findAcceptedActiveNegotiationRateCommand);
+
     }
 }

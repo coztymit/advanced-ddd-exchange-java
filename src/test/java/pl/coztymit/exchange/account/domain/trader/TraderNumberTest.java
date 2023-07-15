@@ -1,6 +1,7 @@
 package pl.coztymit.exchange.account.domain.trader;
 
 import org.junit.jupiter.api.Test;
+import pl.coztymit.exchange.account.domain.TraderNumber;
 
 import static org.junit.jupiter.api.Assertions.*;
 

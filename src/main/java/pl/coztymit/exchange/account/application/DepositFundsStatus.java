@@ -1,7 +1,5 @@
 package pl.coztymit.exchange.account.application;
 
-import pl.coztymit.exchange.account.domain.AccountId;
-
 public class DepositFundsStatus {
     public static final DepositFundsStatus TRANSACTION_LIMIT_EXCEEDED = new DepositFundsStatus("Transaction limit exceeded");
     public static final DepositFundsStatus ACCOUNT_NOT_FOUND = new DepositFundsStatus("Account not found");
@@ -10,11 +8,11 @@ public class DepositFundsStatus {
 
 
     private String status;
-    private String accountId;
+    private String accountNumber;
 
-    private DepositFundsStatus(String status, String accountId) {
+    private DepositFundsStatus(String status, String accountNumber) {
         this.status = status;
-        this.accountId = accountId;
+        this.accountNumber = accountNumber;
     }
     public DepositFundsStatus(String status) {
         this.status = status;
