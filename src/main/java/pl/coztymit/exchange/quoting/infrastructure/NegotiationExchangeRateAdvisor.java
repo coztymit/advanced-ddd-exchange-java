@@ -17,15 +17,6 @@ public class NegotiationExchangeRateAdvisor implements ExchangeRateAdvisor {
 
     @Override
     public Optional<ExchangeRate> exchangeRate(Requester requester, MoneyToExchange moneyToExchange, Currency currencyToSell, Currency currencyToBuy) {
-
-        /**FindAcceptedActiveNegotiationRateCommand findAcceptedActiveNegotiationRateCommand = new FindAcceptedActiveNegotiationRateCommand(
-                requester.identityId(),
-                currencyToSell,
-                currencyToBuy,
-                moneyToExchange.toMoney());
-
-        NegotiationRateResponse acceptedActiveNegotiationRate = negotiationApplicationService.findAcceptedActiveNegotiationRate(findAcceptedActiveNegotiationRateCommand);
-*/
         return Optional.empty();
     }
 }

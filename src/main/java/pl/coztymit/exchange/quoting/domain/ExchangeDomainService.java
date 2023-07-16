@@ -7,19 +7,11 @@ import pl.coztymit.exchange.quoting.domain.policy.OneDayQuoteExpirationDatePolic
 import pl.coztymit.exchange.quoting.domain.policy.QuoteExpirationDatePolicy;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ExchangeDomainService {
     public BestExchangeRate getBestExchangeRate(Requester requester, MoneyToExchange moneyToExchange, List<ExchangeRateAdvisor> advisors, Currency currencyToSell, Currency currencyToBuy) {
-        ExchangeRate exchangeRate = advisors.stream()
-                .map(advisor -> advisor.exchangeRate(requester, moneyToExchange, currencyToSell, currencyToBuy))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .reduce((rate1, rate2) -> rate1.isMoreFavorableThan(rate2) ? rate1 : rate2)
-                .orElseThrow(() -> new RuntimeException("No exchange rate available"));
-
-        return new BestExchangeRate(exchangeRate.getCurrencyToSell(), exchangeRate.getCurrencyToBuy(), exchangeRate.getRate());
+       return null;
     }
 
     public QuoteExpirationDatePolicy determineQuoteExpirationDatePolicy(Requester requester) {
