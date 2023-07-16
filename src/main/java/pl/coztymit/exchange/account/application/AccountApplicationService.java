@@ -29,6 +29,7 @@ public class AccountApplicationService {
 
     private AccountRepository accountRepository;
     private AccountFactory accountFactory;
+    private ExchangeRateAdvisor exchangeRateAdvisor;
 
     @Autowired
     public AccountApplicationService(@Qualifier("DBAccountRepository") AccountRepository accountRepository, AccountFactory accountFactory) {
@@ -91,17 +92,12 @@ public class AccountApplicationService {
     }
 
     @Transactional
-    public BuyCurrencyStatus buyCurrency(String traderNumber, Money currencyToBuy, ExchangeRateCommand command) {
-
-        ExchangeRate exchangeRate = new ExchangeRate(
-                new Currency(command.currencyToSell()),
-                new Currency(command.currencyToBuy()),
-                command.rate());
+    public BuyCurrencyStatus transferFundsBetweenWallets(String traderNumber, Money currencyToBuy,  Money currencyToSell) {
 
         try{
             Optional<Account> optionalAccount = accountRepository.findAccountFor(new TraderNumber(traderNumber));
             Account account = optionalAccount.orElseThrow(() -> new AccountNotFoundException("Account not found"));
-            account.exchangeCurrency(new Funds(currencyToBuy), exchangeRate, TransactionType.CURRENCY_EXCHANGE);
+            account.exchangeCurrency(new Funds(currencyToBuy), new Funds(currencyToSell), TransactionType.CURRENCY_EXCHANGE);
             accountRepository.save(account);
             return BuyCurrencyStatus.BUY_SUCCESS;
         }

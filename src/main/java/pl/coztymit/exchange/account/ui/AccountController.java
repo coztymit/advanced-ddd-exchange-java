@@ -51,11 +51,12 @@ public class AccountController {
         }
     }
 
-    @PostMapping("/buyCurrency/{traderNumber}")
-    public BuyCurrencyStatus buyCurrency(@PathVariable String traderNumber, @RequestBody FundToBuy fundToBuy) {
+    @PostMapping("/transferFundsBetweenWallets/{traderNumber}")
+    public BuyCurrencyStatus transferFundsBetweenWallets(@PathVariable String traderNumber, @RequestBody TransferFundsBetweenWalletsRequest request) {
         try {
-            Money moneyToBuy = new Money(fundToBuy.value(), new Currency(fundToBuy.currency()));
-            return accountService.buyCurrency(traderNumber, moneyToBuy, fundToBuy.exchangeRateCommand());
+            Money moneyToBuy = new Money(request.moneyToBuyValue(), new Currency(request.moneyToBuyCurrency()));
+            Money moneyToSell = new Money(request.moneyToSellValue(), new Currency(request.moneyToSellCurrency()));
+            return accountService.transferFundsBetweenWallets(traderNumber, moneyToBuy, moneyToSell);
         } catch (RuntimeException e) {
             LOG.error("Undefined Exception", e);
             return new BuyCurrencyStatus(e.getMessage());
