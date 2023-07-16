@@ -89,24 +89,7 @@ public class Account {
     }
 
     public void exchangeCurrency(Funds currencyToBuy, ExchangeRate exchangeRate, TransactionType transactionType) throws InsufficientFundsException {
-        Funds currencyToSell = exchangeRate.calculate(currencyToBuy);
-
-        Wallet fromWallet = wallets.stream()
-                    .filter(wallet -> wallet.isSameCurrency(currencyToSell))
-                    .findFirst().orElseThrow(WalletNotFoundException::new);
-
-        Optional<Wallet> optionalToWallet = wallets.stream()
-                .filter(wallet -> wallet.isSameCurrency(currencyToBuy))
-                .findFirst();
-
-        Wallet toWallet = optionalToWallet.orElseGet(() -> {
-            Wallet wallet = new Wallet(currencyToBuy);
-            wallets.add(wallet);
-            return wallet;
-        });
-
-        fromWallet.withdrawFunds(currencyToSell);
-        toWallet.addFunds(currencyToBuy);
+        exchangeRate.calculate(currencyToBuy);
         this.transactions.add(new Transaction(transactionType, currencyToBuy));
     }
 

@@ -21,6 +21,5 @@ public class RestBaseCurrencyPairRate implements BaseCurrencyPairRate {
         ExchangeRatesFeignClient.ExchangeRateResponse response = client.getConversionRate(baseCurrency.toString(), targetCurrency.toString());
 
         return Optional.of(new ExchangeRate(response.getConversion_rate()));
-        //TODO pobieranie kursu z zewnętrznego serwisu np. NBP
     }
 }

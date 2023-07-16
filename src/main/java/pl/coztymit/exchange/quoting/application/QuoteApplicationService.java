@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import pl.coztymit.exchange.kernel.Currency;
 import pl.coztymit.exchange.quoting.domain.*;
 import pl.coztymit.exchange.quoting.domain.exception.QuoteNotFoundException;
-import pl.coztymit.exchange.quoting.domain.policy.QuoteExpirationDatePolicy;
+import pl.coztymit.exchange.quoting.domain.policy.OneHourQuoteExpirationDatePolicy;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,11 +19,9 @@ public class QuoteApplicationService {
     private Log LOG = LogFactory.getLog(QuoteApplicationService.class);
 
     @Autowired
-    private List<ExchangeRateAdvisor> currencyExchangeRateAdvisors;
+    private ExchangeRateAdvisor currencyExchangeRateAdvisor;
     @Autowired
     private QuoteRepository quoteRepository;
-    @Autowired
-    private ExchangeDomainService exchangeDomainService;
 
     @Transactional
     public PrepareQuoteStatus prepareQuote(PrepareQuoteCommand prepareQuoteCommand){
@@ -39,16 +37,11 @@ public class QuoteApplicationService {
             return PrepareQuoteStatus.prepareExistsStatus(quote.get().getQuoteId());
         }
 
-        BestExchangeRate bestExchangeRate = exchangeDomainService.getBestExchangeRate(
-                requester,
-                moneyToExchange,
-                currencyExchangeRateAdvisors,
-                currencyToSell,
-                currencyToBuy);
+        BestExchangeRate bestExchangeRate = currencyExchangeRateAdvisor.exchangeRate(requester, moneyToExchange, currencyToSell, currencyToBuy)
+                .map(rate -> new BestExchangeRate(rate.getCurrencyToSell(), rate.getCurrencyToBuy(), rate.getRate()) )
+                .orElseThrow(() -> new RuntimeException("No exchange rate found"));
 
         MoneyExchanged moneyExchanged = bestExchangeRate.exchange(moneyToExchange);
-
-        QuoteExpirationDatePolicy quoteExpirationDatePolicy = exchangeDomainService.determineQuoteExpirationDatePolicy(requester);
 
         Quote preparedQuote =
                 new Quote(
@@ -56,7 +49,7 @@ public class QuoteApplicationService {
                         bestExchangeRate,
                         moneyToExchange,
                         moneyExchanged,
-                        quoteExpirationDatePolicy);
+                        new OneHourQuoteExpirationDatePolicy());
 
         quoteRepository.save(preparedQuote);
 

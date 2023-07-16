@@ -138,18 +138,7 @@ public class AccountApplicationService {
 
     @Transactional
     public TransferFundsStatus transferFundsBetweenAccount(TransferFundsBetweenAccountCommand command) {
-        //TODO Zadanie 1
-        try{
-            Optional<Account> optionalFromAccount = accountRepository.find(new AccountNumber(command.fromAccountId()));
-            Account fromAccount = optionalFromAccount.orElseThrow(() -> new AccountNotFoundException("Account not found"));
-
-            Optional<Account> optionalToAccount = accountRepository.find(new AccountNumber(command.toAccountId()));
-            Account toAccount = optionalToAccount.orElseThrow(() -> new AccountNotFoundException("Account not found"));
-
-            new TransferFundsDomainService().transferFunds(fromAccount, toAccount,  new Funds(command.fundsToTransfer(), new Currency(command.currency())));
-
-            accountRepository.save(fromAccount);
-            accountRepository.save(toAccount);
+       /* try{
             return TransferFundsStatus.TRANSFER_SUCCESS;
 
         } catch (InsufficientFundsException e) {
@@ -164,7 +153,8 @@ public class AccountApplicationService {
         } catch (AccountNotFoundException e){
             return TransferFundsStatus.ACCOUNT_NOT_FOUND;
         }
-
+          */
+        return TransferFundsStatus.TRANSFER_SUCCESS;
     }
 
     public List<WalletData> getAllWalletsForTrader(String traderNumber){
@@ -175,5 +165,4 @@ public class AccountApplicationService {
         account.depositFunds(new Funds(fundsToDeposit, currency), transactionType);
         accountRepository.save(account);
     }
-
 }

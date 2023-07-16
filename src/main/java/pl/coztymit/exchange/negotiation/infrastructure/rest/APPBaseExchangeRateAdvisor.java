@@ -1,8 +1,9 @@
-package pl.coztymit.exchange.negotiation.infrastructure;
+package pl.coztymit.exchange.negotiation.infrastructure.rest;
 
+import feign.Feign;
+import feign.jackson.JacksonDecoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import pl.coztymit.exchange.currency.application.CurrencyPairResponse;
 import pl.coztymit.exchange.currency.application.CurrencyPairApplicationService;
 import pl.coztymit.exchange.kernel.Currency;
 import pl.coztymit.exchange.negotiation.application.BaseExchangeRateAdvisor;
@@ -17,10 +18,12 @@ public class APPBaseExchangeRateAdvisor implements BaseExchangeRateAdvisor {
 
     @Override
     public Optional<BigDecimal> baseExchangeRate(Currency baseCurrency, Currency targetCurrency) {
-        CurrencyPairResponse currencyPair = currencyPairApplicationService.getCurrencyPair(baseCurrency, targetCurrency);
-        if (currencyPair.getStatus().equals("FAILURE")){
-            return Optional.empty();
-        }
-        return Optional.of(currencyPair.getExchangeRate());
+        ExchangeRatesFeignClient client = Feign.builder()
+                .decoder(new JacksonDecoder())
+                .target(ExchangeRatesFeignClient.class, "https://v6.exchangerate-api.com/v6/86c982b631b2df47540aabc4");
+
+        ExchangeRatesFeignClient.ExchangeRateResponse response = client.getConversionRate(baseCurrency.toString(), targetCurrency.toString());
+
+        return Optional.of((response.getConversion_rate()));
     }
 }
