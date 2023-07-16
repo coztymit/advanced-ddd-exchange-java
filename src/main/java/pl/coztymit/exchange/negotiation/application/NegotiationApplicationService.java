@@ -24,6 +24,7 @@ public class NegotiationApplicationService {
     private final List<NegotiationAutomaticApprovePolicy> negotiationAmountAutomaticApprovePolicies;
     private final BaseExchangeRateAdvisor baseExchangeRateAdvisor;
 
+
     @Autowired
     public NegotiationApplicationService(NegotiationRepository negotiationRepository,
                                          ManualNegotiationApproveNotifier manualNegotiationApproveNotifier,
@@ -72,6 +73,7 @@ public class NegotiationApplicationService {
 
         if(status.isApproved()){
             return CreateNegotiationStatus.APPROVED;
+
         }
         manualNegotiationApproveNotifier.notifyManualApprovalRequired();
         return CreateNegotiationStatus.PENDING;
@@ -93,7 +95,6 @@ public class NegotiationApplicationService {
     @Transactional
     public void rejectNegotiation(UUID negotiationId, UUID operatorId) {
         try {
-            //TODO weryfikacja operatora - czy mam możliwość wykonania operacji zatwierdzenia
             Negotiation negotiation = negotiationRepository.findById(new NegotiationId(negotiationId));
             negotiation.reject(new OperatorId(operatorId));
             negotiationRepository.save(negotiation);

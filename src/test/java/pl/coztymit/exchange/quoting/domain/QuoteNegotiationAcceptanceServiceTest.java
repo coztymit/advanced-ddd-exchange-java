@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class QuoteDomainServiceTest {
+class QuoteNegotiationAcceptanceServiceTest {
     @Mock
     private ExchangeRateAdvisor advisor1;
     @Mock

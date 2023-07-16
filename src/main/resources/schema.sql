@@ -67,3 +67,20 @@ CREATE TABLE negotiations (
     difference_in_percentage DECIMAL(15, 2) NOT NULL,
     status varchar(255)
 );
+
+CREATE TABLE risk_assessments
+(
+    risk_assessment_number UUID NOT NULL PRIMARY KEY,
+    negotiator_identity_id UUID NOT NULL,
+    risk_level VARCHAR(10) NOT NULL
+);
+
+CREATE TABLE risk_lines
+(
+    risk_line_id UUID NOT NULL PRIMARY KEY,
+    negotiation_id UUID NOT NULL,
+    risk_negotiation_value_amount DECIMAL(15, 2) NOT NULL,
+    risk_negotiation_value_currency CHAR(3) NOT NULL,
+    risk_assessment_number UUID NOT NULL,
+    CONSTRAINT fk_risk_assessment_number FOREIGN KEY (risk_assessment_number) REFERENCES risk_assessments(risk_assessment_number)
+);
