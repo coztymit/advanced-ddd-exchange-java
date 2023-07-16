@@ -6,7 +6,6 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import org.springframework.stereotype.Repository;
 import pl.coztymit.exchange.kernel.Currency;
-import pl.coztymit.exchange.kernel.Money;
 import pl.coztymit.exchange.negotiation.domain.*;
 import pl.coztymit.exchange.negotiation.domain.exception.NegotiationNotFoundException;
 
@@ -40,14 +39,14 @@ public class DBNegotiationRepository implements NegotiationRepository {
     }
 
     @Override
-    public boolean alreadyExistsActiveNegotiationForNegotiator(Negotiator negotiator, Currency currency, Currency currency1, BigDecimal bigDecimal, Money money) {
-        String queryString = "SELECT n FROM Negotiation n WHERE n.negotiator = :negotiator AND n.targetCurrency = :currency AND n.proposedExchangeAmount.currency = :currency1 AND n.negotiationRate.proposedRate = :bigDecimal AND n.proposedExchangeAmount = :money AND n.status = :status";
+    public boolean alreadyExistsActiveNegotiationForNegotiator(Negotiator negotiator, Currency baseCurrency, Currency targetCurrency, BigDecimal proposedRate, ProposedExchangeAmount proposedExchangeAmount) {
+        String queryString = "SELECT n FROM Negotiation n WHERE n.negotiator = :negotiator AND n.targetCurrency = :targetCurrency AND n.proposedExchangeAmount.currency = :targetCurrency AND n.negotiationRate.proposedRate = :proposedRate AND n.proposedExchangeAmount = :proposedExchangeAmount AND n.status = :status";
         TypedQuery<Negotiation> query = entityManager.createQuery(queryString, Negotiation.class);
         query.setParameter("negotiator", negotiator);
-        query.setParameter("currency", currency);
-        query.setParameter("currency1", currency1);
-        query.setParameter("bigDecimal", bigDecimal);
-        query.setParameter("money", money);
+        query.setParameter("targetCurrency", targetCurrency);
+        query.setParameter("targetCurrency", targetCurrency);
+        query.setParameter("proposedRate", proposedRate);
+        query.setParameter("proposedExchangeAmount", proposedExchangeAmount);
         query.setParameter("status", Status.PENDING);
 
         List<Negotiation> negotiations = query.getResultList();
@@ -71,7 +70,7 @@ public class DBNegotiationRepository implements NegotiationRepository {
     }
 
     @Override
-    public Optional<BigDecimal> findAcceptedActiveNegotiation(Negotiator negotiator, Currency baseCurrency, Currency targetCurrency, Money proposedExchangeAmount) {
+    public Optional<BigDecimal> findAcceptedActiveNegotiation(Negotiator negotiator, Currency baseCurrency, Currency targetCurrency, ProposedExchangeAmount proposedExchangeAmount) {
         String queryString = "SELECT n.negotiationRate.proposedRate FROM Negotiation n WHERE n.negotiator = :negotiator  AND n.baseCurrency = :baseCurrency AND n.targetCurrency = :targetCurrency AND n.proposedExchangeAmount = :proposedExchangeAmount AND n.status = :status";
         TypedQuery<BigDecimal> query = entityManager.createQuery(queryString, BigDecimal.class);
         query.setParameter("negotiator", negotiator);

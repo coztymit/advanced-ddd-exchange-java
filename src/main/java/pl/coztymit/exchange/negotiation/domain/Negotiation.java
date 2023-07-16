@@ -2,7 +2,6 @@ package pl.coztymit.exchange.negotiation.domain;
 
 import jakarta.persistence.*;
 import pl.coztymit.exchange.kernel.Currency;
-import pl.coztymit.exchange.kernel.Money;
 import pl.coztymit.exchange.negotiation.domain.policy.NegotiationAutomaticApprovePolicy;
 
 import java.util.List;
@@ -32,8 +31,7 @@ public class Negotiation {
             @AttributeOverride(name = "value", column = @Column(name = "proposed_exchange_amount")),
             @AttributeOverride(name = "currency.value", column = @Column(name = "proposed_exchange_currency"))
     })
-    //TODO nieujemna
-    private Money proposedExchangeAmount;
+    private ProposedExchangeAmount proposedExchangeAmount;
 
     @AttributeOverrides({
             @AttributeOverride(name = "proposedRate", column = @Column(name = "propose_exchange_rate")),
@@ -51,7 +49,7 @@ public class Negotiation {
     private Negotiation() {
     }
 
-    public Negotiation(Negotiator negotiator, Money proposedExchangeAmount, Currency baseCurrency, Currency targetCurrency, NegotiationRate  negotiationRate) {
+    public Negotiation(Negotiator negotiator, ProposedExchangeAmount proposedExchangeAmount, Currency baseCurrency, Currency targetCurrency, NegotiationRate  negotiationRate) {
         this.negotiationId = NegotiationId.generate();
         this.negotiator = negotiator;
         this.proposedExchangeAmount = proposedExchangeAmount;

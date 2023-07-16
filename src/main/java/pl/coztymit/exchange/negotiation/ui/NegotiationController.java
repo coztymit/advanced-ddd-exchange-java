@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.coztymit.exchange.kernel.Currency;
-import pl.coztymit.exchange.kernel.Money;
 import pl.coztymit.exchange.negotiation.application.*;
 
 import java.util.UUID;
@@ -26,7 +25,8 @@ public class NegotiationController {
                 request.getIdentityId(),
                 new Currency(request.getBaseCurrency()),
                 new Currency(request.getTargetCurrency()),
-                new Money(request.getProposedExchangeAmount(), new Currency(request.getProposedExchangeCurrency())),
+                request.getProposedExchangeAmount(),
+                request.getProposedExchangeCurrency(),
                 request.getProposedRate());
 
         return negotiationApplicationService.createNegotiation(createNegotiationCommand);
@@ -55,7 +55,8 @@ public class NegotiationController {
                     request.identityId(),
                     new Currency(request.baseCurrency()),
                     new Currency(request.targetCurrency()),
-                    new Money(request.proposedExchangeAmount(), new Currency(request.proposedExchangeCurrency())));
+                    request.proposedExchangeAmount(),
+                    request.proposedExchangeCurrency());
 
         return negotiationApplicationService.findAcceptedActiveNegotiationRate(findAcceptedActiveNegotiationRateCommand);
 

@@ -5,6 +5,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import pl.coztymit.exchange.kernel.Currency;
 import pl.coztymit.exchange.negotiation.domain.*;
 import pl.coztymit.exchange.negotiation.domain.exception.NegotiationNotFoundException;
 import pl.coztymit.exchange.negotiation.domain.policy.NegotiationAutomaticApprovePolicy;
@@ -37,13 +38,15 @@ public class NegotiationApplicationService {
     @Transactional
     public CreateNegotiationStatus createNegotiation(CreateNegotiationCommand command) {
         Negotiator negotiator = new Negotiator(command.identityId());
+        ProposedExchangeAmount proposedExchangeAmount = new ProposedExchangeAmount(command.proposedExchangeAmount(), new Currency(command.proposedExchangeCurrency()));
 
         if(negotiationRepository.alreadyExistsActiveNegotiationForNegotiator(
                 negotiator,
-                command.baseCurrency(),
+                command.baseCurrency(),x
                 command.targetCurrency(),
                 command.proposedRate(),
-                command.proposedExchangeAmount())){
+                proposedExchangeAmount
+               )){
             return CreateNegotiationStatus.ALREADY_EXISTS;
         }
 
@@ -58,7 +61,7 @@ public class NegotiationApplicationService {
 
         Negotiation negotiation = new Negotiation(
             negotiator,
-            command.proposedExchangeAmount(),
+            proposedExchangeAmount,
             command.baseCurrency(),
             command.targetCurrency(),
             new NegotiationRate(command.proposedRate(), baseExchangeRate)
@@ -77,7 +80,7 @@ public class NegotiationApplicationService {
     @Transactional
     public void approveNegotiation(UUID negotiationId, UUID operatorId) {
         try {
-            //TODO weryfikacja operatora - czy mam możliwość wykonania operacji zatwierdzenia
+            //TODO operator verification
             Negotiation negotiation = negotiationRepository.findById(new NegotiationId(negotiationId));
             negotiation.approve(new OperatorId(operatorId));
             negotiationRepository.save(negotiation);
@@ -111,12 +114,12 @@ public class NegotiationApplicationService {
     }
 
     public NegotiationRateResponse findAcceptedActiveNegotiationRate(FindAcceptedActiveNegotiationRateCommand command) {
-
+        ProposedExchangeAmount proposedExchangeAmount = new ProposedExchangeAmount(command.proposedExchangeAmount(), new Currency(command.proposedExchangeCurrency()));
         Optional<BigDecimal> acceptedActiveNegotiation = negotiationRepository.findAcceptedActiveNegotiation(
                 new Negotiator(command.identityId()),
                 command.baseCurrency(),
                 command.targetCurrency(),
-                command.proposedExchangeAmount());
+                proposedExchangeAmount);
 
         return acceptedActiveNegotiation.map(NegotiationRateResponse::new).orElse(NegotiationRateResponse.failed());
     }
