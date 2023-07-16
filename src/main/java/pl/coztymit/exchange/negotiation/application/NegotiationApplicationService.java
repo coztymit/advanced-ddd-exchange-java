@@ -42,7 +42,7 @@ public class NegotiationApplicationService {
 
         if(negotiationRepository.alreadyExistsActiveNegotiationForNegotiator(
                 negotiator,
-                command.baseCurrency(),x
+                command.baseCurrency(),
                 command.targetCurrency(),
                 command.proposedRate(),
                 proposedExchangeAmount
