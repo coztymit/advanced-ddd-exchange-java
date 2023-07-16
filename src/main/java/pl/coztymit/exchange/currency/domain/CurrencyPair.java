@@ -1,9 +1,13 @@
 package pl.coztymit.exchange.currency.domain;
 
 import jakarta.persistence.*;
+import pl.coztymit.exchange.currency.domain.event.CurrencyPairDeactivated;
+import pl.coztymit.exchange.currency.domain.event.CurrencyPairDomainEventBus;
+import pl.coztymit.exchange.currency.domain.event.CurrencyPairExchangeRateAdjusted;
 import pl.coztymit.exchange.kernel.Currency;
 
 import java.math.BigDecimal;
+import java.util.function.Function;
 
 @Entity
 @Table(name = "currency_pairs")
@@ -30,7 +34,6 @@ public class CurrencyPair {
     private Status status;
 
     private CurrencyPair() {
-
     }
 
     CurrencyPair (CurrencyPairId currencyPairId, Currency baseCurrency, Currency targetCurrency, ExchangeRate exchangeRate) {
@@ -41,15 +44,21 @@ public class CurrencyPair {
         this.targetCurrency = targetCurrency;
     }
 
-    public void adjustExchangeRate(BigDecimal adjustedRate){
+    public void adjustExchangeRate(BigDecimal adjustedRate, CurrencyPairDomainEventBus currencyPairDomainEventBus){
         this.exchangeRate = this.exchangeRate.adjust(adjustedRate);
+        currencyPairDomainEventBus.post(new CurrencyPairExchangeRateAdjusted(currencyPairId, baseCurrency, targetCurrency, adjustedRate));
     }
 
-    public void deactivate(){
+    public void deactivate(CurrencyPairDomainEventBus eventBus){
         this.status = Status.INACTIVE;
+        eventBus.post(new CurrencyPairDeactivated(currencyPairId, baseCurrency, targetCurrency));
     }
 
     public CurrencyPairId currencyPairId() {
         return currencyPairId;
+    }
+
+    public BigDecimal baseRate() {
+        return exchangeRate.baseRate(Function.identity());
     }
 }

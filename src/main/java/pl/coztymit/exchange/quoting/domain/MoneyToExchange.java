@@ -6,6 +6,7 @@ import pl.coztymit.exchange.kernel.Currency;
 import pl.coztymit.exchange.kernel.Money;
 
 import java.math.BigDecimal;
+import java.util.function.Function;
 
 @Embeddable
 public class MoneyToExchange {
@@ -41,5 +42,13 @@ public class MoneyToExchange {
 
     public Money toMoney() {
         return new Money(value, currency);
+    }
+
+    public <R> R value(Function<BigDecimal, R> converter) {
+        return converter.apply(this.value);
+    }
+
+    public <R> R currency(Function<String, R> converter) {
+        return converter.apply(this.currency.toString());
     }
 }

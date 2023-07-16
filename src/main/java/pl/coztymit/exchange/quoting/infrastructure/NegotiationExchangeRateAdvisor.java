@@ -9,6 +9,8 @@ import pl.coztymit.exchange.negotiation.application.NegotiationRateResponse;
 import pl.coztymit.exchange.quoting.domain.*;
 
 import java.util.Optional;
+import java.util.function.Function;
+
 @Component
 public class NegotiationExchangeRateAdvisor implements ExchangeRateAdvisor {
     @Autowired
@@ -21,8 +23,7 @@ public class NegotiationExchangeRateAdvisor implements ExchangeRateAdvisor {
                 requester.identityId(),
                 currencyToSell,
                 currencyToBuy,
-                null, null);
-        //TODO zmienić nulle na obsługę pieniądza
+                moneyToExchange.value(Function.identity()), moneyToExchange.currency(Function.identity()));
 
         NegotiationRateResponse negotiationRateResponse = negotiationApplicationService.findAcceptedActiveNegotiationRate(findAcceptedActiveNegotiationRateCommand);
         if (negotiationRateResponse.getStatus().equals("SUCCESS")){
