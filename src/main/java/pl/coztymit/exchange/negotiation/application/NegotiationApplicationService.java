@@ -23,19 +23,17 @@ public class NegotiationApplicationService {
     private final ManualNegotiationApproveNotifier manualNegotiationApproveNotifier;
     private final List<NegotiationAutomaticApprovePolicy> negotiationAmountAutomaticApprovePolicies;
     private final BaseExchangeRateAdvisor baseExchangeRateAdvisor;
-    private final NegotiationAcceptanceService negotiationAcceptanceService;
 
 
     @Autowired
     public NegotiationApplicationService(NegotiationRepository negotiationRepository,
                                          ManualNegotiationApproveNotifier manualNegotiationApproveNotifier,
                                          List<NegotiationAutomaticApprovePolicy> negotiationAmountAutomaticApprovePolicies,
-                                         BaseExchangeRateAdvisor baseExchangeRateAdvisor, NegotiationAcceptanceService negotiationAcceptanceService) {
+                                         BaseExchangeRateAdvisor baseExchangeRateAdvisor) {
         this.negotiationRepository = negotiationRepository;
         this.manualNegotiationApproveNotifier = manualNegotiationApproveNotifier;
         this.negotiationAmountAutomaticApprovePolicies = negotiationAmountAutomaticApprovePolicies;
         this.baseExchangeRateAdvisor = baseExchangeRateAdvisor;
-        this.negotiationAcceptanceService = negotiationAcceptanceService;
     }
 
     @Transactional
@@ -74,7 +72,6 @@ public class NegotiationApplicationService {
         negotiationRepository.save(negotiation);
 
         if(status.isApproved()){
-            negotiationAcceptanceService.negotiationAccepted(negotiation);
             return CreateNegotiationStatus.APPROVED;
 
         }
@@ -90,7 +87,6 @@ public class NegotiationApplicationService {
             negotiation.approve(new OperatorId(operatorId));
             negotiationRepository.save(negotiation);
             manualNegotiationApproveNotifier.notifyNegotiationApproved(negotiationId.toString());
-            negotiationAcceptanceService.negotiationAccepted(negotiation);
         } catch (NegotiationNotFoundException e) {
             LOG.error("Negotiation not found", e);
         }

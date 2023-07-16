@@ -25,9 +25,7 @@ public class RiskAssessment {
     @JoinColumn(name = "risk_assessment_number", nullable = false)
     private List<RiskLine> riskLines = new ArrayList<>();
 
-
     private RiskAssessment() {
-
     }
 
     public RiskAssessment(NegotiationId negotiationId, RiskNegotiationValue riskNegotiationValue, Negotiator negotiator) {
@@ -38,12 +36,6 @@ public class RiskAssessment {
     }
 
     public void addNegotiation(NegotiationId negotiationId, RiskNegotiationValue riskNegotiationValue) {
-        this.riskLines.add(new RiskLine(negotiationId, riskNegotiationValue));
-        if (this.riskLines.size() > 10 && this.riskLines.size() < 50) {
-            this.riskLevel = RiskLevel.MEDIUM;
-        } else if (this.riskLines.size() > 50) {
-            this.riskLevel = RiskLevel.HIGH;
-        }
     }
 
     public void changeRiskLevel(RiskLevel riskLevel) {
