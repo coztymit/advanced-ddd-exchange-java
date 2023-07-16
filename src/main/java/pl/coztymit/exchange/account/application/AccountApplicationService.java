@@ -138,7 +138,6 @@ public class AccountApplicationService {
 
     @Transactional
     public TransferFundsStatus transferFundsBetweenAccount(TransferFundsBetweenAccountCommand command) {
-        //TODO Zadanie 1
         try{
             Optional<Account> optionalFromAccount = accountRepository.find(new AccountNumber(command.fromAccountId()));
             Account fromAccount = optionalFromAccount.orElseThrow(() -> new AccountNotFoundException("Account not found"));

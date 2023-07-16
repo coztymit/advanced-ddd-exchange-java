@@ -23,16 +23,19 @@ public class NegotiationApplicationService {
     private final ManualNegotiationApproveNotifier manualNegotiationApproveNotifier;
     private final List<NegotiationAutomaticApprovePolicy> negotiationAmountAutomaticApprovePolicies;
     private final BaseExchangeRateAdvisor baseExchangeRateAdvisor;
+    private final NegotiationAcceptanceService negotiationAcceptanceService;
+
 
     @Autowired
     public NegotiationApplicationService(NegotiationRepository negotiationRepository,
                                          ManualNegotiationApproveNotifier manualNegotiationApproveNotifier,
                                          List<NegotiationAutomaticApprovePolicy> negotiationAmountAutomaticApprovePolicies,
-                                         BaseExchangeRateAdvisor baseExchangeRateAdvisor) {
+                                         BaseExchangeRateAdvisor baseExchangeRateAdvisor, NegotiationAcceptanceService negotiationAcceptanceService) {
         this.negotiationRepository = negotiationRepository;
         this.manualNegotiationApproveNotifier = manualNegotiationApproveNotifier;
         this.negotiationAmountAutomaticApprovePolicies = negotiationAmountAutomaticApprovePolicies;
         this.baseExchangeRateAdvisor = baseExchangeRateAdvisor;
+        this.negotiationAcceptanceService = negotiationAcceptanceService;
     }
 
     @Transactional
@@ -71,7 +74,9 @@ public class NegotiationApplicationService {
         negotiationRepository.save(negotiation);
 
         if(status.isApproved()){
+            negotiationAcceptanceService.negotiationAccepted(negotiation);
             return CreateNegotiationStatus.APPROVED;
+
         }
         manualNegotiationApproveNotifier.notifyManualApprovalRequired();
         return CreateNegotiationStatus.PENDING;
@@ -85,6 +90,7 @@ public class NegotiationApplicationService {
             negotiation.approve(new OperatorId(operatorId));
             negotiationRepository.save(negotiation);
             manualNegotiationApproveNotifier.notifyNegotiationApproved(negotiationId.toString());
+            negotiationAcceptanceService.negotiationAccepted(negotiation);
         } catch (NegotiationNotFoundException e) {
             LOG.error("Negotiation not found", e);
         }
@@ -93,7 +99,6 @@ public class NegotiationApplicationService {
     @Transactional
     public void rejectNegotiation(UUID negotiationId, UUID operatorId) {
         try {
-            //TODO weryfikacja operatora - czy mam możliwość wykonania operacji zatwierdzenia
             Negotiation negotiation = negotiationRepository.findById(new NegotiationId(negotiationId));
             negotiation.reject(new OperatorId(operatorId));
             negotiationRepository.save(negotiation);

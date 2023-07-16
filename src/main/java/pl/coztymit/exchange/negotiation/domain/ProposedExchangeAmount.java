@@ -3,6 +3,7 @@ package pl.coztymit.exchange.negotiation.domain;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Embeddable;
 import pl.coztymit.exchange.kernel.Currency;
+import pl.coztymit.exchange.kernel.Money;
 
 import java.math.BigDecimal;
 
@@ -39,5 +40,9 @@ public class ProposedExchangeAmount {
             return true;
         }
         return false;
+    }
+
+    public Money asMoney() {
+        return new Money(value, currency);
     }
 }

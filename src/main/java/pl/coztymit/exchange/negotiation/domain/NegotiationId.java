@@ -1,7 +1,10 @@
 package pl.coztymit.exchange.negotiation.domain;
 
+import jakarta.persistence.Embeddable;
+
 import java.util.UUID;
 
+@Embeddable
 public class NegotiationId {
     private UUID uuid;
 

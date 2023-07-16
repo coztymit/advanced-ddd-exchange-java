@@ -12,7 +12,7 @@ public class MoreThan500EURAutomaticApprovePolicy implements NegotiationAutomati
 
     @Override
     public boolean shouldApprove(ProposedExchangeAmount proposedExchangeAmount, BigDecimal percent) {
-        return proposedExchangeAmount.isMoreOrEquals(MIN_AMOUNT) && percent.compareTo(new BigDecimal(3)) < 0;
+        return proposedExchangeAmount.isMoreOrEquals(MIN_AMOUNT) && percent.compareTo(new BigDecimal(10)) < 0;
     }
 
     @Override

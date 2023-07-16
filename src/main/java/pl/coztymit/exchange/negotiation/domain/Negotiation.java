@@ -87,4 +87,16 @@ public class Negotiation {
     public boolean isApproved() {
         return status.isApproved();
     }
+
+    NegotiationId negotiationId() {
+        return this.negotiationId;
+    }
+
+    ProposedExchangeAmount proposedExchangeAmount() {
+        return proposedExchangeAmount;
+    }
+
+    Negotiator negotiator() {
+        return negotiator;
+    }
 }
