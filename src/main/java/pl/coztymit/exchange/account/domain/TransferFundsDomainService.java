@@ -6,8 +6,8 @@ import pl.coztymit.exchange.account.domain.exception.WalletsLimitExceededExcepti
 
 public class TransferFundsDomainService {
 
-    public void transferFunds(Account accountFrom, Account accountTo, Funds founds) throws InsufficientFundsException, WalletsLimitExceededException, TransactionLimitExceededException {
-        accountFrom.withdrawFunds(founds, TransactionType.TRANSFER_BETWEEN_ACCOUNTS_WITHDRAW);
-        accountTo.depositFunds(founds, TransactionType.TRANSFER_BETWEEN_ACCOUNTS_DEPOSIT);
+    public void transferFunds(Account accountFrom, Account accountTo, Funds funds) throws InsufficientFundsException, WalletsLimitExceededException, TransactionLimitExceededException {
+        accountFrom.withdrawFunds(funds, TransactionType.TRANSFER_BETWEEN_ACCOUNTS_WITHDRAW);
+        accountTo.depositFunds(funds, TransactionType.TRANSFER_BETWEEN_ACCOUNTS_DEPOSIT);
     }
 }

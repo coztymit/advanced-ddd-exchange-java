@@ -7,6 +7,9 @@ import pl.coztymit.exchange.kernel.IdentityId;
 public class Requester {
     private IdentityId identityId;
 
+    private Requester(){
+    }
+
     public Requester(IdentityId identityId) {
         this.identityId = identityId;
     }
