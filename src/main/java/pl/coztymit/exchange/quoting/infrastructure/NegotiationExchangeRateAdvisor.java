@@ -3,11 +3,10 @@ package pl.coztymit.exchange.quoting.infrastructure;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.coztymit.exchange.kernel.Currency;
+import pl.coztymit.exchange.negotiation.application.FindAcceptedActiveNegotiationRateCommand;
 import pl.coztymit.exchange.negotiation.application.NegotiationApplicationService;
-import pl.coztymit.exchange.quoting.domain.ExchangeRate;
-import pl.coztymit.exchange.quoting.domain.ExchangeRateAdvisor;
-import pl.coztymit.exchange.quoting.domain.MoneyToExchange;
-import pl.coztymit.exchange.quoting.domain.Requester;
+import pl.coztymit.exchange.negotiation.application.NegotiationRateResponse;
+import pl.coztymit.exchange.quoting.domain.*;
 
 import java.util.Optional;
 @Component
@@ -18,14 +17,17 @@ public class NegotiationExchangeRateAdvisor implements ExchangeRateAdvisor {
     @Override
     public Optional<ExchangeRate> exchangeRate(Requester requester, MoneyToExchange moneyToExchange, Currency currencyToSell, Currency currencyToBuy) {
 
-        /**FindAcceptedActiveNegotiationRateCommand findAcceptedActiveNegotiationRateCommand = new FindAcceptedActiveNegotiationRateCommand(
+        FindAcceptedActiveNegotiationRateCommand findAcceptedActiveNegotiationRateCommand = new FindAcceptedActiveNegotiationRateCommand(
                 requester.identityId(),
                 currencyToSell,
                 currencyToBuy,
-                moneyToExchange.toMoney());
+                null, null);
+        //TODO zmienić nulle na obsługę pieniądza
 
-        NegotiationRateResponse acceptedActiveNegotiationRate = negotiationApplicationService.findAcceptedActiveNegotiationRate(findAcceptedActiveNegotiationRateCommand);
-*/
-        return Optional.empty();
+        NegotiationRateResponse negotiationRateResponse = negotiationApplicationService.findAcceptedActiveNegotiationRate(findAcceptedActiveNegotiationRateCommand);
+        if (negotiationRateResponse.getStatus().equals("SUCCESS")){
+            return Optional.of(new ExchangeRate(currencyToSell, currencyToBuy, new Rate(negotiationRateResponse.getRate())));
+        }
+            return Optional.empty();
     }
 }
