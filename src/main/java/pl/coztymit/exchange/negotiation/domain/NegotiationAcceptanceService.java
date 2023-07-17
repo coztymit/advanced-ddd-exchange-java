@@ -21,6 +21,7 @@ public class NegotiationAcceptanceService {
         if (optionalRiskAssessment.isPresent()) {
             riskAssessment = optionalRiskAssessment.get();
             riskAssessment.addNegotiation(negotiation.negotiationId(),riskNegotiationValue);
+
         } else {
             riskAssessment = new RiskAssessment(negotiation.negotiationId(), riskNegotiationValue, negotiation.negotiator());
         }

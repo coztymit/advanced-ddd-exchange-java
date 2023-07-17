@@ -29,7 +29,6 @@ public class AccountApplicationService {
 
     private AccountRepository accountRepository;
     private AccountFactory accountFactory;
-    private ExchangeRateAdvisor exchangeRateAdvisor;
 
     @Autowired
     public AccountApplicationService(@Qualifier("DBAccountRepository") AccountRepository accountRepository, AccountFactory accountFactory) {
