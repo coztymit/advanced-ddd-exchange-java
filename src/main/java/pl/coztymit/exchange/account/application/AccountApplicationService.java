@@ -97,7 +97,6 @@ public class AccountApplicationService {
                 new Currency(command.currencyToSell()),
                 new Currency(command.currencyToBuy()),
                 command.rate());
-
         try{
             Optional<Account> optionalAccount = accountRepository.findAccountFor(new TraderNumber(traderNumber));
             Account account = optionalAccount.orElseThrow(() -> new AccountNotFoundException("Account not found"));
