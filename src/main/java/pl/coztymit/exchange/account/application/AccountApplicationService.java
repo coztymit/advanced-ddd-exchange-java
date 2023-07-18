@@ -96,7 +96,7 @@ public class AccountApplicationService {
         try{
             Optional<Account> optionalAccount = accountRepository.findAccountFor(new TraderNumber(traderNumber));
             Account account = optionalAccount.orElseThrow(() -> new AccountNotFoundException("Account not found"));
-            account.exchangeCurrency(new Funds(currencyToBuy), new Funds(currencyToSell), TransactionType.CURRENCY_EXCHANGE);
+            account.transferFunds(new Funds(currencyToBuy), new Funds(currencyToSell), TransactionType.CURRENCY_EXCHANGE);
             accountRepository.save(account);
             return BuyCurrencyStatus.BUY_SUCCESS;
         }

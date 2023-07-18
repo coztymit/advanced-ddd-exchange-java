@@ -88,7 +88,7 @@ public class Account {
 
     }
 
-    public void exchangeCurrency(Funds currencyToBuy, Funds currencyToSell, TransactionType transactionType) throws InsufficientFundsException {
+    public void transferFunds(Funds currencyToBuy, Funds currencyToSell, TransactionType transactionType) throws InsufficientFundsException {
 
         Wallet fromWallet = wallets.stream()
                     .filter(wallet -> wallet.isSameCurrency(currencyToSell))
