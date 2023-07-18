@@ -15,9 +15,6 @@ public class NegotiationRate {
     }
 
     public NegotiationRate(BigDecimal proposedRate, BigDecimal baseExchangeRate) {
-        if(baseExchangeRate.compareTo(proposedRate)<=0){
-            throw new IllegalArgumentException("Proposed rate should be lower than base exchange rate");
-        }
         this.proposedRate = proposedRate;
         this.baseExchangeRate = baseExchangeRate;
         this.differenceInPercentage = calculateDifferenceInPercentage();
