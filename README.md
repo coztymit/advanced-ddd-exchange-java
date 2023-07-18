@@ -4,6 +4,20 @@ Swagger UI: http://localhost:8080/swagger-ui/index.html
 
 Database-H2 Console: http://localhost:8080/h2-console
 
+Rabbit
+
+Run
+
+docker run -d --name my-rabbit -p 5672:5672 -p 15672:15672 rabbitmq:3-management
+
+Console 
+
+http://localhost:15672
+
+login:guest
+Password:guest
+
+
 Dependencies
 * [Spring Boot DevTools](https://docs.spring.io/spring-boot/docs/2.5.6/reference/htmlsingle/#using-boot-devtools)
 * [Spring Web](https://docs.spring.io/spring-boot/docs/2.5.6/reference/htmlsingle/#boot-features-developing-web-applications)

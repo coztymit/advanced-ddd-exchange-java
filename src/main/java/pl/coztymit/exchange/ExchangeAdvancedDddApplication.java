@@ -14,5 +14,4 @@ public class ExchangeAdvancedDddApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(ExchangeAdvancedDddApplication.class, args);
 	}
-
 }
