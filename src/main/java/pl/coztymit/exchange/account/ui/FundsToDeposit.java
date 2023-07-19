@@ -1,7 +1,5 @@
 package pl.coztymit.exchange.account.ui;
 
-import pl.coztymit.exchange.kernel.Currency;
-
 import java.math.BigDecimal;
 
 public class FundsToDeposit {

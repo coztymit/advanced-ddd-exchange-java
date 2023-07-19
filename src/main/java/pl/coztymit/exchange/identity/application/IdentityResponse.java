@@ -1,6 +1,5 @@
 package pl.coztymit.exchange.identity.application;
 
-import pl.coztymit.exchange.identity.domain.Email;
 import pl.coztymit.exchange.kernel.IdentityId;
 
 public class IdentityResponse {

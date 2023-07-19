@@ -22,11 +22,11 @@ public class CurrencyPairApplicationService {
     private Log LOG = LogFactory.getLog(CurrencyPairApplicationService.class);
     private final CurrencyPairRepository repository;
     private final CurrencyPairFactory factory;
-    private final CurrencyPairDomainEventBus domainEventBus;
+    private final List<CurrencyPairDomainEventBus> domainEventBus;
 
 
     @Autowired
-    public CurrencyPairApplicationService(CurrencyPairRepository repository, CurrencyPairFactory factory, CurrencyPairDomainEventBus domainEventBus) {
+    public CurrencyPairApplicationService(CurrencyPairRepository repository, CurrencyPairFactory factory, List<CurrencyPairDomainEventBus> domainEventBus) {
         this.repository = repository;
         this.factory = factory;
         this.domainEventBus = domainEventBus;
@@ -41,7 +41,7 @@ public class CurrencyPairApplicationService {
         try {
             CurrencyPair currencyPair = factory.create(baseCurrency, targetCurrency);
             repository.save(currencyPair);
-            domainEventBus.post(new CurrencyPairCreated(baseCurrency, targetCurrency, currencyPair.baseRate()));
+            domainEventBus.forEach(eventBus -> eventBus.post(new CurrencyPairCreated(baseCurrency, targetCurrency, currencyPair.baseRate())));
 
             return AddCurrencyPairStatus.createSuccessStatus(currencyPair.currencyPairId());
         } catch (CurrencyPairNotSupportedException e) {
@@ -58,7 +58,7 @@ public class CurrencyPairApplicationService {
         try {
             CurrencyPair currencyPair = factory.create(rate, baseCurrency, targetCurrency);
             repository.save(currencyPair);
-            domainEventBus.post(new CurrencyPairCreated(baseCurrency, targetCurrency, rate));
+            domainEventBus.forEach(eventBus -> eventBus.post(new CurrencyPairCreated(baseCurrency, targetCurrency, currencyPair.baseRate())));
             return AddCurrencyPairWithRateResponse.createSuccessStatus();
         } catch (CurrencyPairNotSupportedException e) {
             LOG.error("Currency pair not supported: " + baseCurrency + " -> " + targetCurrency);

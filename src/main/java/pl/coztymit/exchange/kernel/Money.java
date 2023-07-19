@@ -60,23 +60,14 @@ public class Money {
 
 
     public boolean lessThan(Money valueToCompere) {
-        if (this.value.compareTo(valueToCompere.value) < 0) {
-            return true;
-        }
-        return false;
+        return this.value.compareTo(valueToCompere.value) < 0;
     }
 
     public boolean theSameCurrency(Money money) {
-        if (this.currency.equals(money.currency)) {
-            return true;
-        }
-        return false;
+        return this.currency.equals(money.currency);
     }
     public boolean theSameCurrency(Currency currency) {
-        if (this.currency.equals(currency)) {
-            return true;
-        }
-        return false;
+        return this.currency.equals(currency);
     }
 
     public int compareTo(Money money) {

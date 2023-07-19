@@ -77,19 +77,13 @@ public class Invoice {
 
     //invariant
     private boolean lessOrEqualsLineLimit(int newLineCount) {
-        if (this.lines.size() + newLineCount > 10) {
-            return false;
-        }
-        return true;
+        return this.lines.size() + newLineCount <= 10;
     }
 
     //invariant
     private boolean valueLessOrEqualsMoneyLimit(Money newLineValue) {
         var oldAndNewLineValue = lineValue.add(newLineValue);
-        if (oldAndNewLineValue.lessThan(lineValueLimit)) {
-            return false;
-        }
-        return true;
+        return !oldAndNewLineValue.lessThan(lineValueLimit);
     }
 
     private void invariantCheck(Line line) {

@@ -1,7 +1,6 @@
 package pl.coztymit.exchange.account.domain;
 
 import jakarta.persistence.Embeddable;
-import jakarta.persistence.EmbeddedId;
 
 import java.util.UUID;
 @Embeddable

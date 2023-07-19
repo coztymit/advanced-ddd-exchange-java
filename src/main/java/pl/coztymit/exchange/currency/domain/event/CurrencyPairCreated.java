@@ -4,5 +4,5 @@ import pl.coztymit.exchange.kernel.Currency;
 
 import java.math.BigDecimal;
 
-public record CurrencyPairCreated (Currency baseCurrency, Currency targetCurrency, BigDecimal rate){
+public record CurrencyPairCreated (Currency baseCurrency, Currency targetCurrency, BigDecimal rate) {
 }

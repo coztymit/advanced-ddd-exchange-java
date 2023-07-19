@@ -36,10 +36,7 @@ public class ProposedExchangeAmount {
     }
 
     public boolean theSameCurrency(Currency currency) {
-        if (this.currency.equals(currency)) {
-            return true;
-        }
-        return false;
+        return this.currency.equals(currency);
     }
 
     public Money asMoney() {

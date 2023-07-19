@@ -10,9 +10,6 @@ public class EuroTransactionLimitPolicy implements TransactionLimitPolicy{
     private Funds lowerTransactionLimit = new Funds(new BigDecimal("12"), Currency.EUR);
     @Override
     public boolean withinTheLimit(Funds funds) {
-        if(funds.lessOrEqualsThan(upperTransactionLimit) && funds.greaterOrEqualsThan(lowerTransactionLimit)){
-            return true;
-        }
-        return false;
+        return funds.lessOrEqualsThan(upperTransactionLimit) && funds.greaterOrEqualsThan(lowerTransactionLimit);
     }
 }

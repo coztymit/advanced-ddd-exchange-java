@@ -7,6 +7,7 @@ import pl.coztymit.exchange.currency.domain.event.CurrencyPairExchangeRateAdjust
 import pl.coztymit.exchange.kernel.Currency;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.function.Function;
 
 @Entity
@@ -44,14 +45,20 @@ public class CurrencyPair {
         this.targetCurrency = targetCurrency;
     }
 
-    public void adjustExchangeRate(BigDecimal adjustedRate, CurrencyPairDomainEventBus currencyPairDomainEventBus){
+    public void adjustExchangeRate(BigDecimal adjustedRate, List<CurrencyPairDomainEventBus> currencyPairDomainEventBus){
         this.exchangeRate = this.exchangeRate.adjust(adjustedRate);
-        currencyPairDomainEventBus.post(new CurrencyPairExchangeRateAdjusted(currencyPairId, baseCurrency, targetCurrency, adjustedRate));
+
+        currencyPairDomainEventBus.forEach(event -> event.post(new CurrencyPairExchangeRateAdjusted(currencyPairId, baseCurrency, targetCurrency, adjustedRate)));
     }
 
-    public void deactivate(CurrencyPairDomainEventBus eventBus){
+    public void deactivate(List<CurrencyPairDomainEventBus> eventBus){
         this.status = Status.INACTIVE;
-        eventBus.post(new CurrencyPairDeactivated(currencyPairId, baseCurrency, targetCurrency));
+        eventBus.forEach(event -> event.post(new CurrencyPairDeactivated(currencyPairId, baseCurrency, targetCurrency)));
+    }
+
+    public void active(List<CurrencyPairDomainEventBus> eventBus){
+        this.status = Status.ACTIVE;
+        eventBus.forEach(event -> event.post(new CurrencyPairDeactivated(currencyPairId, baseCurrency, targetCurrency)));
     }
 
     public CurrencyPairId currencyPairId() {

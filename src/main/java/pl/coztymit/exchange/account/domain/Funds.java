@@ -1,9 +1,6 @@
 package pl.coztymit.exchange.account.domain;
 
 
-import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.AttributeOverrides;
-import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import pl.coztymit.exchange.account.domain.exception.InsufficientFundsException;
 import pl.coztymit.exchange.accounting.domain.exception.DifferentCurrenciesException;
@@ -68,17 +65,11 @@ public class Funds {
     }
 
     public boolean lessOrEqualsThan(Funds valueToCompere) {
-        if (this.value.compareTo(valueToCompere.value) <= 0) {
-            return true;
-        }
-        return false;
+        return this.value.compareTo(valueToCompere.value) <= 0;
     }
 
     public boolean greaterOrEqualsThan(Funds valueToCompere) {
-        if (this.value.compareTo(valueToCompere.value) >= 0) {
-            return true;
-        }
-        return false;
+        return this.value.compareTo(valueToCompere.value) >= 0;
     }
 
     boolean isSameCurrency(Currency currency) {

@@ -27,6 +27,9 @@ public class Identity {
     @AttributeOverride(name = "value", column = @Column(name = "email"))
     private Email email;
 
+    private Identity() {
+    }
+
     Identity(IdentityId identityId, PESEL pesel, FirstName firstName, Email email, Surname surname) {
         this.identityId = identityId;
         this.pesel = pesel;

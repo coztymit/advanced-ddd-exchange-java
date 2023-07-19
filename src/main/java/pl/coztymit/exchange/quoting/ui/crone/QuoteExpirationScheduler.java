@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import pl.coztymit.exchange.quoting.application.QuoteApplicationService;
-import pl.coztymit.exchange.quoting.domain.Quote;
 
 @Component
 public class QuoteExpirationScheduler {

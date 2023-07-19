@@ -1,7 +1,5 @@
 package pl.coztymit.exchange.identity.domain;
 
-import jakarta.persistence.Embeddable;
-
 public class FirstName {
     private String value;
 

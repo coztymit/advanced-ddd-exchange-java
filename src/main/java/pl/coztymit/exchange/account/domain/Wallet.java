@@ -2,7 +2,6 @@ package pl.coztymit.exchange.account.domain;
 
 import jakarta.persistence.*;
 import pl.coztymit.exchange.account.domain.exception.InsufficientFundsException;
-import pl.coztymit.exchange.kernel.Currency;
 
 import java.util.UUID;
 

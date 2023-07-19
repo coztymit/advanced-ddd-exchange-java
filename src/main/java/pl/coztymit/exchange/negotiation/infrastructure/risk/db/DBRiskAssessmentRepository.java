@@ -23,7 +23,7 @@ public class DBRiskAssessmentRepository implements RiskAssessmentRepository {
     }
 
     @Override
-    public Optional<RiskAssessment> findByNegotiatorId(Negotiator negotiator) {
+    public Optional<RiskAssessment> findByNegotiator(Negotiator negotiator) {
         String queryString = "SELECT r FROM RiskAssessment r WHERE r.negotiator = :negotiator";
         TypedQuery<RiskAssessment> query = entityManager.createQuery(queryString, RiskAssessment.class);
         query.setParameter("negotiator", negotiator);

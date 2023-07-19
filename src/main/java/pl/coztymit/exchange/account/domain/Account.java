@@ -1,6 +1,7 @@
 package pl.coztymit.exchange.account.domain;
 
 import jakarta.persistence.*;
+import pl.coztymit.exchange.account.domain.events.AccountActivated;
 import pl.coztymit.exchange.account.domain.exception.InsufficientFundsException;
 import pl.coztymit.exchange.account.domain.exception.TransactionLimitExceededException;
 import pl.coztymit.exchange.account.domain.exception.WalletNotFoundException;
@@ -11,10 +12,12 @@ import pl.coztymit.exchange.account.domain.policy.WithoutTransactionLimitPolicy;
 import pl.coztymit.exchange.account.domain.policy.WithoutWalletsLimitPolicy;
 import pl.coztymit.exchange.account.domain.trader.Trader;
 
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 
 @Entity
@@ -39,6 +42,8 @@ public class Account {
     @JoinColumn(name = "account_number", nullable = false)
     private List<Transaction> transactions;
 
+    private Status status;
+
     private Account() {
     }
 
@@ -47,7 +52,13 @@ public class Account {
         this.trader = trader;
         this.transactions = new ArrayList<>();
         this.wallets = new ArrayList<>();
+        this.status = Status.INACTIVE;
         wallets.add(new Wallet(Funds.ZERO_PLN));
+    }
+
+    public void activateAccount(AccountDomainEventBus eventsBus){
+        this.status = Status.ACTIVE;
+        eventsBus.post(new AccountActivated(this.trader.identity(Function.identity())));
     }
 
     public void depositFunds(Funds funds, TransactionType transactionType) throws WalletsLimitExceededException, TransactionLimitExceededException {
@@ -114,10 +125,7 @@ public class Account {
     }
 
     private boolean exhaustedTransactionLimitForToday(TransactionType transactionType){
-        if(transactionType.equals(TransactionType.CARD) &&  countDailyTransactionByType(TransactionType.CARD) <= cardTransactionDailyLimit){
-            return false;
-        }
-        return true;
+        return !transactionType.equals(TransactionType.CARD) || countDailyTransactionByType(TransactionType.CARD) > cardTransactionDailyLimit;
     }
 
     private long countDailyTransactionByType(TransactionType transactionType){

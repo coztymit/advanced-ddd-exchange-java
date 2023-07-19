@@ -2,12 +2,12 @@ package pl.coztymit.exchange.kernel;
 
 import jakarta.persistence.Embeddable;
 
-import java.util.Objects;
+import java.io.Serializable;
 import java.util.UUID;
 
 import static java.util.Objects.requireNonNull;
 @Embeddable
-public class IdentityId {
+public class IdentityId implements Serializable {
     private UUID uuid;
 
     private IdentityId() {
@@ -16,6 +16,10 @@ public class IdentityId {
     public IdentityId(UUID uuid) {
         requireNonNull(uuid, "IdentityId cannot be null");
         this.uuid = uuid;
+    }
+
+    public IdentityId(String identityId){
+        this.uuid = UUID.fromString(identityId);
     }
 
     public static IdentityId generateNewId() {

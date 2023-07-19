@@ -1,6 +1,5 @@
 package pl.coztymit.exchange.accounting.domain;
 
-import org.springframework.stereotype.Repository;
 import pl.coztymit.exchange.accounting.domain.policy.PLNLineLimitPolicy;
 import pl.coztymit.exchange.accounting.domain.policy.LineLimitPolicy;
 

@@ -1,7 +1,5 @@
 package pl.coztymit.exchange.accounting.domain;
 
-import org.springframework.stereotype.Repository;
-
 import java.util.Optional;
 
 

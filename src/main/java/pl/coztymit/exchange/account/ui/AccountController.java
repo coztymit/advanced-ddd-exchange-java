@@ -85,6 +85,11 @@ public class AccountController {
         }
     }
 
+    @PostMapping("/activate/{accountId}")
+    public ActivateAccountStatus activateAccount(@PathVariable UUID accountId) {
+        return accountService.activateAccount(accountId);
+    }
+
     @GetMapping("/{traderNumber}/wallets")
     public List<WalletData> getWalletDataByTraderNumber(@PathVariable String traderNumber) {
         return accountService.getAllWalletsForTrader(traderNumber);

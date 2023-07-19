@@ -7,8 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.coztymit.exchange.kernel.Currency;
 import pl.coztymit.exchange.negotiation.domain.*;
+import pl.coztymit.exchange.negotiation.domain.event.NegotiationApproved;
+import pl.coztymit.exchange.negotiation.domain.event.NegotiationCreated;
 import pl.coztymit.exchange.negotiation.domain.exception.NegotiationNotFoundException;
 import pl.coztymit.exchange.negotiation.domain.policy.NegotiationAutomaticApprovePolicy;
+import pl.coztymit.exchange.negotiation.domain.supportedcurrency.SupportedCurrency;
+import pl.coztymit.exchange.negotiation.domain.supportedcurrency.SupportedCurrencyRepository;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -24,18 +28,25 @@ public class NegotiationApplicationService {
     private final List<NegotiationAutomaticApprovePolicy> negotiationAmountAutomaticApprovePolicies;
     private final BaseExchangeRateAdvisor baseExchangeRateAdvisor;
     private final NegotiationAcceptanceService negotiationAcceptanceService;
+    private final SupportedCurrencyRepository supportedCurrencyRepository;
+    private final List<NegotiationDomainEventBus> eventBuses;
 
 
     @Autowired
     public NegotiationApplicationService(NegotiationRepository negotiationRepository,
                                          ManualNegotiationApproveNotifier manualNegotiationApproveNotifier,
                                          List<NegotiationAutomaticApprovePolicy> negotiationAmountAutomaticApprovePolicies,
-                                         BaseExchangeRateAdvisor baseExchangeRateAdvisor, NegotiationAcceptanceService negotiationAcceptanceService) {
+                                         BaseExchangeRateAdvisor baseExchangeRateAdvisor,
+                                         NegotiationAcceptanceService negotiationAcceptanceService,
+                                         SupportedCurrencyRepository supportedCurrencyRepository,
+                                         List<NegotiationDomainEventBus> eventBuses) {
         this.negotiationRepository = negotiationRepository;
         this.manualNegotiationApproveNotifier = manualNegotiationApproveNotifier;
         this.negotiationAmountAutomaticApprovePolicies = negotiationAmountAutomaticApprovePolicies;
         this.baseExchangeRateAdvisor = baseExchangeRateAdvisor;
         this.negotiationAcceptanceService = negotiationAcceptanceService;
+        this.supportedCurrencyRepository = supportedCurrencyRepository;
+        this.eventBuses = eventBuses;
     }
 
     @Transactional
@@ -52,14 +63,13 @@ public class NegotiationApplicationService {
                )){
             return CreateNegotiationStatus.ALREADY_EXISTS;
         }
+        Optional<SupportedCurrency> byCurrency = supportedCurrencyRepository.findActiveByCurrency(command.baseCurrency(), command.targetCurrency());
 
-        Optional<BigDecimal> optionalBaseExchangeRate = baseExchangeRateAdvisor.baseExchangeRate(command.baseCurrency(), command.targetCurrency());
-
-        if(!optionalBaseExchangeRate.isPresent()){
+        if(!byCurrency.isPresent()){
             return CreateNegotiationStatus.CURRENCY_PAIR_NOT_SUPPORTED;
         }
 
-        BigDecimal baseExchangeRate = optionalBaseExchangeRate.get();
+        BigDecimal baseExchangeRate = byCurrency.get().getRate();
 
 
         Negotiation negotiation = new Negotiation(
@@ -74,23 +84,28 @@ public class NegotiationApplicationService {
         negotiationRepository.save(negotiation);
 
         if(status.isApproved()){
-            negotiationAcceptanceService.negotiationAccepted(negotiation);
-            return CreateNegotiationStatus.APPROVED;
-
+            //negotiationAcceptanceService.negotiationAccepted(negotiation);
+            eventBuses.forEach(eventBus ->
+                    eventBus.post(new NegotiationApproved(negotiation.negotiationId(), negotiation.negotiator(), negotiation.proposedExchangeAmount().asMoney())));
+        }else{
+            manualNegotiationApproveNotifier.notifyManualApprovalRequired();
         }
-        manualNegotiationApproveNotifier.notifyManualApprovalRequired();
-        return CreateNegotiationStatus.PENDING;
+
+        eventBuses.forEach(eventBus ->
+                eventBus.post(new NegotiationCreated(negotiation.negotiationId(), negotiation.negotiator(), negotiation.proposedExchangeAmount().asMoney())));
+
+        return status.isApproved() ? CreateNegotiationStatus.APPROVED : CreateNegotiationStatus.PENDING;
     }
 
     @Transactional
     public void approveNegotiation(UUID negotiationId, UUID operatorId) {
         try {
-            //TODO operator verification
+
             Negotiation negotiation = negotiationRepository.findById(new NegotiationId(negotiationId));
-            negotiation.approve(new OperatorId(operatorId));
+            negotiation.approve(new OperatorId(operatorId), eventBuses);
             negotiationRepository.save(negotiation);
             manualNegotiationApproveNotifier.notifyNegotiationApproved(negotiationId.toString());
-            negotiationAcceptanceService.negotiationAccepted(negotiation);
+            //negotiationAcceptanceService.negotiationAccepted(negotiation);
         } catch (NegotiationNotFoundException e) {
             LOG.error("Negotiation not found", e);
         }

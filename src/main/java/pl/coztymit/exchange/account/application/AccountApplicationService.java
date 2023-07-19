@@ -14,11 +14,11 @@ import pl.coztymit.exchange.account.domain.exception.WalletsLimitExceededExcepti
 import pl.coztymit.exchange.kernel.Currency;
 import pl.coztymit.exchange.kernel.IdentityId;
 import pl.coztymit.exchange.kernel.Money;
-import pl.coztymit.exchange.account.domain.TraderNumber;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static java.util.Objects.requireNonNull;
 
@@ -29,11 +29,13 @@ public class AccountApplicationService {
 
     private AccountRepository accountRepository;
     private AccountFactory accountFactory;
+    private AccountDomainEventBus eventBus;
 
     @Autowired
-    public AccountApplicationService(@Qualifier("DBAccountRepository") AccountRepository accountRepository, AccountFactory accountFactory) {
+    public AccountApplicationService(@Qualifier("DBAccountRepository") AccountRepository accountRepository, AccountFactory accountFactory, AccountDomainEventBus eventBus) {
         this.accountRepository = accountRepository;
         this.accountFactory = accountFactory;
+        this.eventBus = eventBus;
     }
 
     @Transactional
@@ -46,6 +48,16 @@ public class AccountApplicationService {
             return CreateAccountStatus.success(accountStatus.status(), identityId, accountStatus.accountNumber(), accountStatus.traderNumber());
         }
         return CreateAccountStatus.createFailAccountStatus(accountStatus.status(), identityId);
+    }
+
+    @Transactional
+    public ActivateAccountStatus activateAccount(UUID accountId){
+        Optional<Account> optionalAccount = accountRepository.find(new AccountNumber(accountId));
+        return optionalAccount.map(account -> {
+            account.activateAccount(eventBus);
+            accountRepository.save(account);
+            return ActivateAccountStatus.successStatus();
+        }).orElse(ActivateAccountStatus.failStatus());
     }
 
     @Transactional

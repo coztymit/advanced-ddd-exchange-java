@@ -6,6 +6,6 @@ import java.util.Optional;
 
 public interface RiskAssessmentRepository {
         void save(RiskAssessment riskAssessment);
-        Optional<RiskAssessment> findByNegotiatorId(Negotiator negotiator);
+        Optional<RiskAssessment> findByNegotiator(Negotiator negotiator);
         Optional<RiskAssessment> findByRiskAssessmentNumber(RiskAssessmentNumber riskAssessmentNumber);
 }

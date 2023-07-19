@@ -11,9 +11,6 @@ public class PLNTransactionLimitPolicy implements TransactionLimitPolicy{
     private Funds lowerTransactionLimit = new Funds(new BigDecimal("50"));
     @Override
     public boolean withinTheLimit(Funds funds) {
-        if(funds.lessOrEqualsThan(upperTransactionLimit) && funds.greaterOrEqualsThan(lowerTransactionLimit)){
-            return true;
-        }
-        return false;
+        return funds.lessOrEqualsThan(upperTransactionLimit) && funds.greaterOrEqualsThan(lowerTransactionLimit);
     }
 }

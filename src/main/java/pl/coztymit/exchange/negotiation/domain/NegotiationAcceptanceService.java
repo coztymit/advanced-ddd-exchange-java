@@ -15,7 +15,7 @@ public class NegotiationAcceptanceService {
     private RiskAssessmentRepository riskAssessmentRepository;
 
     public void negotiationAccepted(Negotiation negotiation) {
-        Optional<RiskAssessment> optionalRiskAssessment = riskAssessmentRepository.findByNegotiatorId(negotiation.negotiator());
+        Optional<RiskAssessment> optionalRiskAssessment = riskAssessmentRepository.findByNegotiator(negotiation.negotiator());
         RiskNegotiationValue riskNegotiationValue = new RiskNegotiationValue(negotiation.proposedExchangeAmount().asMoney());
         RiskAssessment riskAssessment;
         if (optionalRiskAssessment.isPresent()) {

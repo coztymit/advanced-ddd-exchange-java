@@ -10,7 +10,8 @@ CREATE TABLE identities (
 CREATE TABLE accounts (
   account_number UUID NOT NULL PRIMARY KEY,
   identity_id UUID NOT NULL,
-  trader_number VARCHAR(15) NOT NULL
+  trader_number VARCHAR(15) NOT NULL,
+  status VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE transactions (
@@ -84,3 +85,24 @@ CREATE TABLE risk_lines
     risk_assessment_number UUID NOT NULL,
     CONSTRAINT fk_risk_assessment_number FOREIGN KEY (risk_assessment_number) REFERENCES risk_assessments(risk_assessment_number)
 );
+
+CREATE TABLE supported_currencies (
+    supported_currency_id UUID NOT NULL PRIMARY KEY,
+    base_currency VARCHAR(3) NOT NULL,
+    target_currency VARCHAR(3) NOT NULL,
+    rate DECIMAL(15, 2) NOT NULL,
+    status VARCHAR(255) NOT NULL
+);
+CREATE TABLE new_client_promotions (
+    identity_id UUID NOT NULL,
+    account_activated BOOLEAN NOT NULL,
+    negotiation_created BOOLEAN NOT NULL
+);
+
+CREATE TABLE promotions (
+    promotion_number UUID NOT NULL PRIMARY KEY,
+    identity_id UUID NOT NULL,
+    promotion_type VARCHAR(255) NOT NULL
+);
+
+

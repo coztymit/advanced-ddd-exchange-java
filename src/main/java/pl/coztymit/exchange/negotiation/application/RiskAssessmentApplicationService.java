@@ -3,10 +3,10 @@ package pl.coztymit.exchange.negotiation.application;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pl.coztymit.exchange.negotiation.domain.risk.RiskAssessment;
-import pl.coztymit.exchange.negotiation.domain.risk.RiskAssessmentNumber;
-import pl.coztymit.exchange.negotiation.domain.risk.RiskAssessmentRepository;
-import pl.coztymit.exchange.negotiation.domain.risk.RiskLevel;
+import pl.coztymit.exchange.kernel.Money;
+import pl.coztymit.exchange.negotiation.domain.NegotiationId;
+import pl.coztymit.exchange.negotiation.domain.Negotiator;
+import pl.coztymit.exchange.negotiation.domain.risk.*;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -32,4 +32,19 @@ public class RiskAssessmentApplicationService {
         return new ChangeRiskAssessmentRiskLevelStatus("OK");
     }
 
+    @Transactional
+    public CreateRiskAssessmentStatus negotiationApproved(NegotiationId negotiationId, Negotiator negotiator, Money proposedExchangeAmount) {
+        Optional<RiskAssessment> optionalRiskAssessment = riskAssessmentRepository.findByNegotiator(negotiator);
+        RiskNegotiationValue riskNegotiationValue = new RiskNegotiationValue(proposedExchangeAmount);
+        RiskAssessment riskAssessment;
+        if (optionalRiskAssessment.isPresent()) {
+            riskAssessment = optionalRiskAssessment.get();
+            riskAssessment.addNegotiation(negotiationId, riskNegotiationValue);
+
+        } else {
+            riskAssessment = new RiskAssessment(negotiationId, riskNegotiationValue, negotiator);
+        }
+        riskAssessmentRepository.save(riskAssessment);
+        return new CreateRiskAssessmentStatus("OK");
+    }
 }
