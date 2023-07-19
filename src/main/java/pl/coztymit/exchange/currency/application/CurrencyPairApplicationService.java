@@ -6,8 +6,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.coztymit.exchange.currency.domain.*;
-import pl.coztymit.exchange.currency.domain.event.CurrencyPairCreated;
-import pl.coztymit.exchange.currency.domain.event.CurrencyPairDomainEventBus;
 import pl.coztymit.exchange.currency.domain.exception.CurrencyPairNotSupportedException;
 import pl.coztymit.exchange.kernel.Currency;
 
@@ -22,14 +20,12 @@ public class CurrencyPairApplicationService {
     private Log LOG = LogFactory.getLog(CurrencyPairApplicationService.class);
     private final CurrencyPairRepository repository;
     private final CurrencyPairFactory factory;
-    private final List<CurrencyPairDomainEventBus> domainEventBus;
 
 
     @Autowired
-    public CurrencyPairApplicationService(CurrencyPairRepository repository, CurrencyPairFactory factory, List<CurrencyPairDomainEventBus> domainEventBus) {
+    public CurrencyPairApplicationService(CurrencyPairRepository repository, CurrencyPairFactory factory) {
         this.repository = repository;
         this.factory = factory;
-        this.domainEventBus = domainEventBus;
     }
 
     @Transactional
@@ -41,7 +37,6 @@ public class CurrencyPairApplicationService {
         try {
             CurrencyPair currencyPair = factory.create(baseCurrency, targetCurrency);
             repository.save(currencyPair);
-            domainEventBus.forEach(eventBus -> eventBus.post(new CurrencyPairCreated(baseCurrency, targetCurrency, currencyPair.baseRate())));
 
             return AddCurrencyPairStatus.createSuccessStatus(currencyPair.currencyPairId());
         } catch (CurrencyPairNotSupportedException e) {
@@ -58,7 +53,7 @@ public class CurrencyPairApplicationService {
         try {
             CurrencyPair currencyPair = factory.create(rate, baseCurrency, targetCurrency);
             repository.save(currencyPair);
-            domainEventBus.forEach(eventBus -> eventBus.post(new CurrencyPairCreated(baseCurrency, targetCurrency, currencyPair.baseRate())));
+
             return AddCurrencyPairWithRateResponse.createSuccessStatus();
         } catch (CurrencyPairNotSupportedException e) {
             LOG.error("Currency pair not supported: " + baseCurrency + " -> " + targetCurrency);
@@ -71,7 +66,7 @@ public class CurrencyPairApplicationService {
         Optional<CurrencyPair> existingCurrencyPair = repository.findById(new CurrencyPairId(currencyPairId));
         try{
             CurrencyPair currencyPair = existingCurrencyPair.orElseThrow();
-            currencyPair.deactivate(domainEventBus);
+            currencyPair.deactivate();
             repository.save(currencyPair);
             return DeactivateCurrencyPairStatus.createSuccessStatus();
         }catch (Exception e){
@@ -84,7 +79,7 @@ public class CurrencyPairApplicationService {
         Optional<CurrencyPair> optionalExistingCurrencyPair = repository.findByBaseCurrencyAndTargetCurrency(baseCurrency, targetCurrency);
         try{
             CurrencyPair currencyPair = optionalExistingCurrencyPair.orElseThrow();
-            currencyPair.adjustExchangeRate(adjustedRate, domainEventBus);
+            currencyPair.adjustExchangeRate(adjustedRate);
             repository.save(currencyPair);
             return UpdateCurrencyPairRateStatus.createSuccessStatus();
         }catch (Exception e){

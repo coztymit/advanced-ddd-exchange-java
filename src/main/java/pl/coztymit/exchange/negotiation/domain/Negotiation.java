@@ -2,7 +2,6 @@ package pl.coztymit.exchange.negotiation.domain;
 
 import jakarta.persistence.*;
 import pl.coztymit.exchange.kernel.Currency;
-import pl.coztymit.exchange.negotiation.domain.event.NegotiationApproved;
 import pl.coztymit.exchange.negotiation.domain.policy.NegotiationAutomaticApprovePolicy;
 
 import java.util.List;
@@ -73,11 +72,10 @@ public class Negotiation {
             return status.isApproved() ? AutomaticNegotiationStatus.APPROVED : AutomaticNegotiationStatus.PENDING;
     }
 
-    public void approve(OperatorId operatorId, List<NegotiationDomainEventBus> eventBuses) {
+    public void approve(OperatorId operatorId) {
         this.operator = new Operator(operatorId);
         this.status = Status.APPROVED;
         this.expirationDate = ExpirationDate.oneHourExpirationDate();
-        eventBuses.forEach(eventBus -> eventBus.post(new NegotiationApproved(this.negotiationId, negotiator, proposedExchangeAmount.asMoney())));
     }
 
     public void reject(OperatorId operatorId) {

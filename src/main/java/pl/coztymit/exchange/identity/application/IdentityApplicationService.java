@@ -6,7 +6,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.coztymit.exchange.identity.domain.*;
-import pl.coztymit.exchange.identity.domain.event.IdentityCreated;
 import pl.coztymit.exchange.identity.domain.exception.IdentityAlreadyExistsException;
 import pl.coztymit.exchange.kernel.IdentityId;
 
@@ -23,9 +22,6 @@ public class IdentityApplicationService {
     @Autowired
     private IdentityRepository identityRepository;
 
-    @Autowired
-    private IdentityDomainEventBus identityDomainEventBus;
-
     @Transactional
     public CreateIdentityStatus createIdentity(CreateIdentityCommand command) {
         try {
@@ -35,7 +31,6 @@ public class IdentityApplicationService {
                     new Surname(command.surname()),
                     new Email(command.email()));
             identityRepository.save(identity);
-            identityDomainEventBus.post(new IdentityCreated(identity.getIdentityId(),command.pesel(), command.firstName(),command.surname(),command.email()  ));
             return CreateIdentityStatus.prepareSuccessStatus(identity.getIdentityId());
         } catch (IdentityAlreadyExistsException e) {
             LOG.error(e);

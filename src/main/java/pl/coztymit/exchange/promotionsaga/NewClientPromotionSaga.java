@@ -9,8 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.coztymit.exchange.infrastructure.amqp.account.AccountRabbitConfiguration;
 import pl.coztymit.exchange.infrastructure.amqp.identity.IdentityRabbitConfiguration;
-import pl.coztymit.exchange.infrastructure.amqp.negotiation.NegotiationRabbitConfiguration;
-import pl.coztymit.exchange.kernel.IdentityId;
 import pl.coztymit.exchange.promotion.application.PromotionService;
 
 import java.util.Optional;
@@ -66,20 +64,6 @@ public class NewClientPromotionSaga {
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @RabbitListener(queues = NegotiationRabbitConfiguration.negotiationCreatedQueueForPromotion)
-    @Transactional
-    public void onNegotiationCreated(IdentityId identityId)  {
-
-            Optional<NewClientPromotion> optionalClientPromotion = newClientPromotionSagaRepository.findNewClientPromotion(identityId);
-            if(optionalClientPromotion.isPresent()) {
-                NewClientPromotion newClientPromotion = optionalClientPromotion.get();
-                newClientPromotion.negotiationCreated();
-                newClientPromotionSagaRepository.save(newClientPromotion);
-                tryEndSaga(newClientPromotion);
-            }
-
     }
 
     private void tryEndSaga(NewClientPromotion newClientPromotion) {

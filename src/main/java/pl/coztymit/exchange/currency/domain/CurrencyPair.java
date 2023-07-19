@@ -1,13 +1,9 @@
 package pl.coztymit.exchange.currency.domain;
 
 import jakarta.persistence.*;
-import pl.coztymit.exchange.currency.domain.event.CurrencyPairDeactivated;
-import pl.coztymit.exchange.currency.domain.event.CurrencyPairDomainEventBus;
-import pl.coztymit.exchange.currency.domain.event.CurrencyPairExchangeRateAdjusted;
 import pl.coztymit.exchange.kernel.Currency;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.function.Function;
 
 @Entity
@@ -45,20 +41,16 @@ public class CurrencyPair {
         this.targetCurrency = targetCurrency;
     }
 
-    public void adjustExchangeRate(BigDecimal adjustedRate, List<CurrencyPairDomainEventBus> currencyPairDomainEventBus){
+    public void adjustExchangeRate(BigDecimal adjustedRate){
         this.exchangeRate = this.exchangeRate.adjust(adjustedRate);
-
-        currencyPairDomainEventBus.forEach(event -> event.post(new CurrencyPairExchangeRateAdjusted(currencyPairId, baseCurrency, targetCurrency, adjustedRate)));
     }
 
-    public void deactivate(List<CurrencyPairDomainEventBus> eventBus){
+    public void deactivate(){
         this.status = Status.INACTIVE;
-        eventBus.forEach(event -> event.post(new CurrencyPairDeactivated(currencyPairId, baseCurrency, targetCurrency)));
     }
 
-    public void active(List<CurrencyPairDomainEventBus> eventBus){
+    public void active(){
         this.status = Status.ACTIVE;
-        eventBus.forEach(event -> event.post(new CurrencyPairDeactivated(currencyPairId, baseCurrency, targetCurrency)));
     }
 
     public CurrencyPairId currencyPairId() {
