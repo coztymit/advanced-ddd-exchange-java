@@ -10,8 +10,7 @@ import pl.coztymit.exchange.quoting.domain.*;
 import java.util.Optional;
 
 @Component
-public class RestBaseCurrencyExchangeRateAdvisor implements ExchangeRateAdvisor {
-
+public class APPBaseCurrencyExchangeRateAdvisor implements ExchangeRateAdvisor {
 
     @Autowired
     private CurrencyPairApplicationService currencyPairApplicationService;
